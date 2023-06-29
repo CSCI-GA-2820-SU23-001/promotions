@@ -80,6 +80,7 @@ class TestPromotionModel(unittest.TestCase):
         tomorrow = today + timedelta(1)
         promos = Promotion.all()
         self.assertEqual(promos, [])
+        self.assertEqual(len(promos), 0)
         promo = Promotion(name="20% Off", start_date=today, end_date=tomorrow, whole_store=True, message="This is a test!", promotion_changes_price=True)
         self.assertTrue(promo is not None)
         self.assertEqual(promo.id, None)
@@ -111,17 +112,18 @@ class TestPromotionModel(unittest.TestCase):
         logging.debug(promo)
         self.assertIsNotNone(promo.id)
         # Change it an save it
-        promo.end_date = date.today() + timedelta(2)
+        promo.end_date = date.today() + timedelta(1)
+        promo.has_been_extended = True
         original_id = promo.id
-        promo.update()
         self.assertEqual(promo.id, original_id)
-        self.assertEqual(promo.end_date, date.today() + timedelta(2))
+        self.assertEqual(promo.end_date, date.today() + timedelta(1))
         # Fetch it back and make sure the id hasn't changed
         # but the data did change
         promos = Promotion.all()
         self.assertEqual(len(promos), 1)
         self.assertEqual(promos[0].id, original_id)
-        self.assertEqual(promos[0].end_date, date.today() + timedelta(2))
+        self.assertEqual(promos[0].has_been_extended, True)
+        self.assertEqual(promos[0].end_date, date.today() + timedelta(1))
 
     def test_update_no_id(self):
         """It should not Update a Promotion with no id"""
@@ -205,11 +207,57 @@ class TestPromotionModel(unittest.TestCase):
         promo = Promotion()
         self.assertRaises(DataValidationError, promo.deserialize, data)
 
+    def test_deserialize_bad_end_date(self):
+        """It should not deserialize dictionaries with bad end_date"""
+        today = date.today()
+        data = {"id": 1, "name": "20% Off", "start_date": today, "end_date": "string", "whole_store": True, "message": "This is a test!"}
+        promo = Promotion()
+        self.assertRaises(DataValidationError, promo.deserialize, data)
+
+    def test_deserialize_bad_start_date(self):
+        """It should not deserialize dictionaries with bad start_date"""
+        today = date.today()
+        data = {"id": 1, "name": "20% Off", "start_date": "wrong", "end_date": today, "whole_store": True, "message": "This is a test!"}
+        promo = Promotion()
+        self.assertRaises(DataValidationError, promo.deserialize, data)
+
+    def test_deserialize_bad_whole_store(self):
+        """It should not deserialize dictionaries with bad whole_store"""
+        today = date.today()
+        tomorrow = date.today() + timedelta(1)
+        data = {"id": 1, "name": "20% Off", "start_date": today, "end_date": tomorrow, "whole_store": "bad", "message": "This is a test!"}
+        promo = Promotion()
+        self.assertRaises(DataValidationError, promo.deserialize, data)
+    
+    def test_deserialize_bad_has_been_extended(self):
+        """It should not deserialize dictionaries with bad whole_store"""
+        today = date.today()
+        tomorrow = date.today() + timedelta(1)
+        data = {"id": 1, "name": "20% Off", "start_date": today, "end_date": tomorrow, "whole_store": True, "message": "This is a test!", "has_been_extended": "bad"}
+        promo = Promotion()
+        self.assertRaises(DataValidationError, promo.deserialize, data)
+
+    def test_deserialize_bad_original_end_date(self):
+        """It should not deserialize dictionaries with bad original_end_date"""
+        today = date.today()
+        tomorrow = date.today() + timedelta(1)
+        data = {"id": 1, "name": "20% Off", "start_date": today, "end_date": tomorrow, "whole_store": True, "message": "This is a test!", "original_end_date": "bad"}
+        promo = Promotion()
+        self.assertRaises(DataValidationError, promo.deserialize, data)
+
+    def test_deserialize_bad_promotion_changes_price(self):
+        """It should not deserialize dictionaries with bad promotion_changes_price"""
+        today = date.today()
+        tomorrow = date.today() + timedelta(1)
+        data = {"id": 1, "name": "20% Off", "start_date": today, "end_date": tomorrow, "whole_store": True, "message": "This is a test!", "promotion_changes_price": "bad"}
+        promo = Promotion()
+        self.assertRaises(DataValidationError, promo.deserialize, data)
+
     def test_deserialize_bad_available(self):
         """It should not deserialize a bad available attribute"""
         test_promo = PromoFactory()
         data = test_promo.serialize()
-        data["start_date"] = "bad"
+        data["start_date"] = None
         promo = Promotion()
         self.assertRaises(DataValidationError, promo.deserialize, data)
 
@@ -227,7 +275,6 @@ class TestPromotionModel(unittest.TestCase):
         self.assertEqual(promo.id, promos[1].id)
         self.assertEqual(promo.name, promos[1].name)
         self.assertEqual(promo.start_date, promos[1].start_date)
-        self.assertEqual(promo.end_date, promos[1].end_date)
         self.assertEqual(promo.whole_store, promos[1].whole_store)
         self.assertEqual(promo.end_date, promos[1].end_date)
         self.assertEqual(promo.message, promos[1].message)
@@ -294,11 +341,18 @@ class TestPromotionModel(unittest.TestCase):
             self.assertEqual(promo.message, message)
 
     def test_is_active(self):
-        """A Promotion should be active if it was created before or on today's date"""
+        """It should set a Promotion as active if it was created before or on today's date"""
         today = date.today()
         tomorrow = today + timedelta(1)
         promo = Promotion(name="20% Off", start_date=today, end_date=tomorrow, whole_store=True, message="This is a test!", promotion_changes_price=True)
         self.assertTrue(promo.is_active())
+
+    def test_is_not_active(self):
+        """It should not set a Promotion as active if it was created before or on today's date"""
+        today = date.today() + timedelta(1)
+        tomorrow = today + timedelta(3)
+        promo = Promotion(name="20% Off", start_date=today, end_date=tomorrow, whole_store=True, message="This is a test!", promotion_changes_price=True)
+        self.assertFalse(promo.is_active())
 
     def test_is_active(self):
         """A Promotion should not be active if it was created before or on today's date"""
