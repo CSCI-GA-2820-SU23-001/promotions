@@ -374,7 +374,6 @@ class TestPromotionModel(unittest.TestCase):
         self.assertEqual(promo.start_date, promos[1].start_date)
         self.assertEqual(promo.end_date, promos[1].end_date)
         self.assertEqual(promo.whole_store, promos[1].whole_store)
-        self.assertEqual(promo.end_date, promos[1].end_date)
         self.assertEqual(promo.message, promos[1].message)
         self.assertEqual(promo.promotion_changes_price, promos[1].promotion_changes_price)
 
