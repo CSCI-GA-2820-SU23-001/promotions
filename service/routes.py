@@ -62,7 +62,7 @@ def read_promotions(promotion_id):
 #  UPDATE A PROMOTION
 ######################################################################
 
-@app.route('/promotion/update/<int:promotion_id>', methods=['PUT'])
+@app.route('/promotions/update/<int:promotion_id>', methods=['PUT'])
 def update_promotion(promotion_id):
     """ Update Promotion response """
     return (
