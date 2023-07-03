@@ -43,3 +43,30 @@ class TestYourResourceServer(TestCase):
         """ It should call the home page """
         resp = self.client.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(resp.get_json()), 6) #test number of endpoints coming back
+    
+    def test_create(self):
+        """ Calls create endpoint. """
+        resp = self.client.post("/promotions")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_read(self):
+        """ Calls read endpoint. """
+        resp = self.client.get("/promotions/1")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_update(self):
+        """ Calls update endpoint. """
+        resp = self.client.put("/promotions/1")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_list(self):
+        """ Calls list endpoint. """
+        resp = self.client.get("/promotions")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_delete(self):
+        """ Calls delete endpoint. """
+        resp = self.client.delete("/promotions/1")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+    
