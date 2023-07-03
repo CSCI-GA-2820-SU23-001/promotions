@@ -25,11 +25,10 @@ from datetime import date
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-logger = logging.getLogger("flask.app")
-
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
 
+from . import app
 
 # Function to initialize the database
 def init_db(app):
@@ -39,6 +38,19 @@ def init_db(app):
 
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
+    status_code = 400 # copied format from https://flask.palletsprojects.com/en/2.3.x/errorhandling/
+
+    def __init__(self, message, status_code=None, payload=None):
+        super().__init__()
+        self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+        self.payload = payload
+
+    def to_dict(self):
+        rv = dict(self.payload or ())
+        rv['message'] = self.message
+        return rv
 
 
 class Promotion(db.Model):
@@ -67,7 +79,7 @@ class Promotion(db.Model):
         """
         Creates a Promotion and adds it to the database
         """
-        logger.info("Creating %s", self.name)
+        app.logger.info("Creating %s", self.name)
         self.original_end_date = self.end_date
         self.id = None  # pylint: disable=invalid-name
         db.session.add(self)
@@ -83,7 +95,7 @@ class Promotion(db.Model):
 
     def delete(self):
         """ Removes a YourResourceModel from the data store """
-        logger.info("Deleting %s", self.name)
+        app.logger.info("Deleting %s", self.name)
         db.session.delete(self)
         db.session.commit()
 
@@ -104,7 +116,7 @@ class Promotion(db.Model):
 
     def deserialize(self, data):
         """
-        Deserializes a YourResourceModel from a dictionary
+        Deserializes a Promotion from a dictionary
 
         Args:
             data (dict): A dictionary containing the resource data
@@ -114,13 +126,22 @@ class Promotion(db.Model):
             if isinstance(data["start_date"], date):
                 self.start_date = data["start_date"]
             else:
+                app.logger.warning('Tripped in Start Date')
                 raise DataValidationError(
                     "Invalid type for date [start_date]: "
                     + str(type(data["start_date"]))
                 )
             if isinstance(data["end_date"], date):
-                self.end_date = data["end_date"]
+                if data['start_date'] > data['end_date']:
+                    start_date = data['start_date']
+                    end_date = data['end_date']
+                    raise DataValidationError(
+                        f"Start Date {start_date} > End Date: {end_date}"
+                    )
+                else:
+                    self.end_date = data["end_date"]
             else:
+                app.logger.warning('Tripped in End Date')
                 raise DataValidationError(
                     "Invalid type for date [end_date]: "
                     + str(type(data["end_date"]))
@@ -128,6 +149,7 @@ class Promotion(db.Model):
             if isinstance(data["whole_store"], bool):
                 self.whole_store = data["whole_store"]
             else:
+                app.logger.warning('Tripped in Whole Store')
                 raise DataValidationError(
                     "Invalid type for date [whole_store]: "
                     + str(type(data["whole_store"]))
@@ -135,6 +157,7 @@ class Promotion(db.Model):
             if isinstance(data["has_been_extended"], bool):
                 self.has_been_extended = data["has_been_extended"]
             else:
+                app.logger.warning('Tripped in extended')
                 raise DataValidationError(
                     "Invalid type for date [has_been_extended]: "
                     + str(type(data["has_been_extended"]))
@@ -142,6 +165,7 @@ class Promotion(db.Model):
             if isinstance(data["original_end_date"], date):
                 self.original_end_date = data["original_end_date"]
             else:
+                app.logger.warning('Tripped in original end date')
                 raise DataValidationError(
                     "Invalid type for date [original_end_date]: "
                     + str(type(data["original_end_date"]))
@@ -150,13 +174,16 @@ class Promotion(db.Model):
             if isinstance(data["promotion_changes_price"], bool):
                 self.promotion_changes_price = data["promotion_changes_price"]
             else:
+                app.logger.warning('Tripped in promotion changes price')
                 raise DataValidationError(
                     "Invalid type for date [promotion_changes_price]: "
                     + str(type(data["promotion_changes_price"]))
                 )
         except KeyError as error:
+            app.logger.warning('tripped in Invalid promotion')
             raise DataValidationError("Invalid promotion: missing " + error.args[0]) from error
         except TypeError as error:
+            app.logger.warning('Tripped in type error')
             raise DataValidationError(
                 "Invalid promotion: body of request contained bad or no data " + str(error)
             ) from error
@@ -172,7 +199,7 @@ class Promotion(db.Model):
     @classmethod
     def init_db(cls, app):
         """ Initializes the database session """
-        logger.info("Initializing database")
+        app.logger.info("Initializing database")
         cls.app = app
         # This is where we initialize SQLAlchemy from the Flask app
         db.init_app(app)
@@ -182,13 +209,13 @@ class Promotion(db.Model):
     @classmethod
     def all(cls):
         """ Returns all of the YourResourceModels in the database """
-        logger.info("Processing all YourResourceModels")
+        app.logger.info("Processing all YourResourceModels")
         return cls.query.all()
 
     @classmethod
     def find(cls, by_id):
         """ Finds a YourResourceModel by it's ID """
-        logger.info("Processing lookup for id %s ...", by_id)
+        app.logger.info("Processing lookup for id %s ...", by_id)
         return cls.query.get(by_id)
 
     @classmethod
@@ -198,7 +225,7 @@ class Promotion(db.Model):
         Args:
             name (string): the name of the Promotion you want to match
         """
-        logger.info("Processing name query for %s ...", name)
+        app.logger.info("Processing name query for %s ...", name)
         return cls.query.filter(cls.name == name)
 
     @classmethod
@@ -208,7 +235,7 @@ class Promotion(db.Model):
         Args:
             start_date (date): the start_date of the Promotion you want to match
         """
-        logger.info("Processing name query for %s ...", date)
+        app.logger.info("Processing name query for %s ...", date)
         return cls.query.filter(cls.start_date == date)
     
     @classmethod
@@ -218,7 +245,7 @@ class Promotion(db.Model):
         Args:
             end_date (date): the name of the Promotion you want to match
         """
-        logger.info("Processing name query for %s ...", date)
+        app.logger.info("Processing name query for %s ...", date)
         return cls.query.filter(cls.end_date == date)
 
     @classmethod
@@ -228,7 +255,7 @@ class Promotion(db.Model):
         Args:
             original_end_date (date): the name of the Promotion you want to match
         """
-        logger.info("Processing name query for %s ...", date)
+        app.logger.info("Processing name query for %s ...", date)
         return cls.query.filter(cls.original_end_date == date)
 
     @classmethod
@@ -238,7 +265,7 @@ class Promotion(db.Model):
         Args:
             message (date): the message of the Promotion you want to match
         """
-        logger.info("Processing name query for %s ...", message)
+        app.logger.info("Processing name query for %s ...", message)
         return cls.query.filter(cls.message == message)
 
     @classmethod
@@ -252,5 +279,5 @@ class Promotion(db.Model):
         :rtype: Promotion
 
         """
-        logger.info("Processing lookup or 404 for id %s ...", promo_id)
+        app.logger.info("Processing lookup or 404 for id %s ...", promo_id)
         return cls.query.get_or_404(promo_id)

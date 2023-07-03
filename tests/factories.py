@@ -19,7 +19,7 @@ class PromoFactory(factory.Factory):
     id = factory.Sequence(lambda n: n)
     name = "20% Off"
     start_date = FuzzyDate(date.today())
-    end_date = FuzzyDate(date(2023, 1, 1), date(2030, 1, 1))
+    end_date = FuzzyDate(date.today(), date(2030, 1, 1))
     whole_store = FuzzyChoice(choices=[True, False])
     has_been_extended = FuzzyChoice(choices=[True, False])
     original_end_date = end_date
