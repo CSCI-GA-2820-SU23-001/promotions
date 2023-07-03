@@ -113,7 +113,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_update(self):
-        """ It should respond to a valid read with a 200 status code and the new object. """
+        """ It should respond to a valid update with a 200 status code and the new object. """
         resp = self.client.put("/promotions/1")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
