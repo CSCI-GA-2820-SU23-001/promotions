@@ -55,7 +55,7 @@ class TestYourResourceServer(TestCase):
         del data_orig['id'] # user is not supposed to send ID, they're supposed to receive it
         data = {k: str(v) for k,v in data_orig.items()}
         resp = self.client.post(
-            "/promotions/create", 
+            "/promotions", 
             json = data,
             headers={
                 'Content-type':'application/json', 
@@ -77,7 +77,7 @@ class TestYourResourceServer(TestCase):
             new_data = data.copy()
             del new_data[field]
             resp = self.client.post(
-                "/promotions/create", 
+                "/promotions", 
                 json = data,
                 headers={
                     'Content-type':'application/json', 
@@ -109,21 +109,21 @@ class TestYourResourceServer(TestCase):
 
     def test_read(self):
         """ It should respond to a valid read with a 200 status code and complete data. """
-        resp = self.client.get("/promotions/read/1")
+        resp = self.client.get("/promotions/1")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_update(self):
         """ It should respond to a valid read with a 200 status code and the new object. """
-        resp = self.client.put("/promotions/update/1")
+        resp = self.client.put("/promotions/1")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_list(self):
         """ It should respond to a list request with a 200 status code and all the available data. """
-        resp = self.client.get("/promotions/list")
+        resp = self.client.get("/promotions")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_delete(self):
         """ It should respond to a valid delete with a 204 status code. """
-        resp = self.client.delete("/promotions/delete/1")
+        resp = self.client.delete("/promotions/1")
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
     

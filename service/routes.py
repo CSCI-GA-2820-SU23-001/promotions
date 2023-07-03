@@ -40,7 +40,7 @@ def index():
 #  CREATE A PROMOTION
 ######################################################################
 
-@app.route("/promotions/create", methods=["POST"])
+@app.route("/promotions", methods=["POST"])
 def create_promotion():
     """ Create Promotion Response """
     app.logger.warning("Create Route Called")
@@ -60,7 +60,7 @@ def create_promotion():
 #  READ A PROMOTION
 ######################################################################
 
-@app.route("/promotions/read/<int:promotion_id>", methods=["GET"])
+@app.route("/promotions/<int:promotion_id>", methods=["GET"])
 def read_promotions(promotion_id):
     """ Read Promotion response """
     return (
@@ -72,7 +72,7 @@ def read_promotions(promotion_id):
 #  UPDATE A PROMOTION
 ######################################################################
 
-@app.route('/promotions/update/<int:promotion_id>', methods=['PUT'])
+@app.route('/promotions/<int:promotion_id>', methods=['PUT'])
 def update_promotion(promotion_id):
     """ Update Promotion response """
     return (
@@ -83,7 +83,7 @@ def update_promotion(promotion_id):
 ######################################################################
 #  LIST ALL PROMOTIONS
 ######################################################################
-@app.route("/promotions/list", methods=["GET"])
+@app.route("/promotions", methods=["GET"])
 def list_promotions():
     """ List Promotion response """
     return (
@@ -94,7 +94,7 @@ def list_promotions():
 ######################################################################
 #  DELETE A PROMOTION
 ######################################################################
-@app.route("/promotions/delete/<int:promotion_id>", methods=["DELETE"])
+@app.route("/promotions/<int:promotion_id>", methods=["DELETE"])
 def delete_promotion(promotion_id):
     """ Delete Promotion response """
     return (
