@@ -7,6 +7,7 @@ Test cases can be run with the following:
 """
 import os
 import logging
+from datetime import timedelta
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 from service import app
@@ -64,27 +65,48 @@ class TestYourResourceServer(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         response_json = resp.get_json()
-        del response_json['id']
-        del response_json['original_end_date']
-        del data['original_end_date']
+        app.logger.debug(f'Create Test Reponse: {response_json}')
+        del response_json['id'] # user didnt send ID so obviously cant include it in the assert
+        del response_json['original_end_date'] # original end date is set by the API as well
+        del data['original_end_date'] # see above
         self.assertEqual(response_json, data)
 
     def test_create_with_bad_data(self):
         """ It should return a 400 status code with an incomplete create. """
         promo = PromoFactory()
         data = promo.serialize()
+        del data['id']
+        data = {k: str(v) for k,v in data.items()}
         for field in data.keys():
             new_data = data.copy()
             del new_data[field]
             resp = self.client.post(
                 "/promotions", 
-                json = data,
+                json = new_data,
                 headers={
                     'Content-type':'application/json', 
                     'Accept':'application/json'
                 }
             )
             self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_with_start_and_end_mismatch(self):
+        """ It should return 400 is the end date is before the start date """
+        promo = PromoFactory()
+        data = promo.serialize()
+        del data['id']
+        data['end_date'] = data['start_date'] - timedelta(days = 2)
+        data = {k: str(v) for k,v in data.items()}
+        resp = self.client.post(
+            "/promotions", 
+            json = data,
+            headers={
+                'Content-type':'application/json', 
+                'Accept':'application/json'
+            }
+        )
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
 
     def test_helpers(self):
         """ It should return an error when converting data that does not conform"""

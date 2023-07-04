@@ -90,6 +90,24 @@ class TestPromotionModel(unittest.TestCase):
         promos = Promotion.all()
         self.assertEqual(len(promos), 1)
 
+    def test_promotion_with_invalid_original_end_date(self):
+        """It should throw an error if original end date is not a date."""
+        promo = PromoFactory()
+        new_promo = Promotion()
+        data = promo.serialize()
+        data['original_end_date'] = '1'
+        logging.debug(data)
+        self.assertRaises((DataValidationError), new_promo.deserialize, data)
+
+    def test_promotion_with_invalid_promotion_change_price(self):
+        """It should throw an error if promotion_changes_price is not a bool."""
+        promo = PromoFactory()
+        new_promo = Promotion()
+        data = promo.serialize()
+        data['promotion_changes_price'] = '1'
+        logging.debug(data)
+        self.assertRaises((DataValidationError), new_promo.deserialize, data)
+
     def test_read_a_promotion(self):
         """It should Read a Promotion"""
         promo = PromoFactory()
