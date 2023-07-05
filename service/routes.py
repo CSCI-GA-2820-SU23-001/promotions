@@ -82,10 +82,18 @@ def read_promotions(promotion_id):
 @app.route('/promotions/<int:promotion_id>', methods=['PUT'])
 def update_promotion(promotion_id):
     """ Update Promotion response """
-    return (
-        "Return the update endpoint payload here in JSON Format.",
-        status.HTTP_200_OK,
-    )
+    app.logger.info("Request to update promotion with id %s", promotion_id)
+    promo = Promotion.find(promotion_id)
+    if not promo:
+        abort(status.HTTP_404_NOT_FOUND, f"Promotion with id '{promotion_id} was not found.")
+    json_data = request.get_json()
+    convert_data(json_data)
+    promo.deserialize(json_data)
+    promo.update()
+    data_out = promo.serialize()
+    convert_data_back(data_out)
+    app.logger.info("Promotion with ID [%s] updated.", promotion_id)
+    return jsonify(data_out), status.HTTP_200_OK
 
 
 ######################################################################
@@ -113,14 +121,11 @@ def list_promotions():
 
 @app.route("/promotions/<int:promotion_id>", methods=["DELETE"])
 def delete_promotion(promotion_id):
-    """
-    Delete Promotion response
-    This endpoint will delete a promotion based the id specified in the path
-    """
+    """ Delete Promotion response """
     app.logger.info("Request to delete a promotion with id %s", promotion_id)
     promo = Promotion.find(promotion_id)
     if not promo:
-        abort(status.HTTP_404_NOT_FOUND, f"Promotion with id '{promotion_id} was not found.")
+        abort(status.HTTP_404_NOT_FOUND, f'Promotion with id {promotion_id} was not found.')
     promo.delete()
     app.logger.info("Promotion with ID [%s] delete complete.", promotion_id)
     return (
