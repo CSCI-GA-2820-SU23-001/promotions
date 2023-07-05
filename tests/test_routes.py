@@ -8,9 +8,8 @@ Test cases can be run with the following:
 import logging
 from datetime import timedelta
 from unittest import TestCase
-from unittest.mock import MagicMock, patch
 from service import app
-from service.models import Promotion, DataValidationError, db
+from service.models import DataValidationError
 from service.common import status  # HTTP Status Codes
 from service.helpers import convert_data, convert_data_back
 from tests.factories import PromoFactory
@@ -46,17 +45,18 @@ class TestYourResourceServer(TestCase):
         """ It should call the home page """
         resp = self.client.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(resp.get_json()), 6) #test number of endpoints coming back
-    
+        self.assertEqual(len(resp.get_json()), 6)  # test number of endpoints coming back
+
     def test_create(self):
         """ It should respond to a proper create with 201 status code and return the data. """
         promo = PromoFactory()
         data_orig = promo.serialize()
-        del data_orig['id'] # user is not supposed to send ID, they're supposed to receive it
-        data = {k: str(v) for k,v in data_orig.items()}
+        del data_orig['id']  # user is not supposed to send ID, they're supposed to receive it
+        data = {k: str(v) for k, v in data_orig.items()}
         app.logger.debug(f'Happy Path: Test Passing to Create: {data}')
         resp = self.client.post(
-            "/promotions", 
+            "/promotions",
+            # flake8: noqa: E251
             json = data,
             headers={
                 'Content-type':'application/json', 

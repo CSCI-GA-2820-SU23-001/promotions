@@ -71,7 +71,6 @@ class TestPromotionModel(unittest.TestCase):
         self.assertEqual(promo.is_active(), True)
         self.assertEqual(promo.whole_store, True)
         self.assertEqual(promo.message, "This is a test!")
-        # pylint: disable=line-too-long
         self.assertEqual(promo.promotion_changes_price, True)
         promo = Promotion(name="20% Off", start_date=today, end_date=tomorrow, whole_store=False, message="This is a test!", promotion_changes_price=False)
         self.assertEqual(promo.whole_store, False)
@@ -80,7 +79,6 @@ class TestPromotionModel(unittest.TestCase):
     def test_add_a_promotion(self):
         """It should Create a promotion and add it to the database"""
         today = date.today()
-        # pylint: disable=line-too-long
         tomorrow = today + timedelta(1)
         promos = Promotion.all()
         self.assertEqual(promos, [])
@@ -227,14 +225,12 @@ class TestPromotionModel(unittest.TestCase):
         """It should not deserialize bad data"""
         data = "this is not a dictionary"
         promo = Promotion()
-        # pylint: disable=line-too-long
         self.assertRaises(DataValidationError, promo.deserialize, data)
 
     def test_deserialize_bad_end_date(self):
         """It should not deserialize dictionaries with bad end_date"""
         today = date.today()
         data = {"id": 1, "name": "20% Off", "start_date": today, "end_date": "string", "whole_store": True, "message": "This is a test!"}
-        # pylint: disable=line-too-long
         promo = Promotion()
         self.assertRaises(DataValidationError, promo.deserialize, data)
 
@@ -242,7 +238,6 @@ class TestPromotionModel(unittest.TestCase):
         """It should not deserialize dictionaries with bad start_date"""
         today = date.today()
         data = {"id": 1, "name": "20% Off", "start_date": "wrong", "end_date": today, "whole_store": True, "message": "This is a test!"}
-        # pylint: disable=line-too-long
         promo = Promotion()
         self.assertRaises(DataValidationError, promo.deserialize, data)
 
