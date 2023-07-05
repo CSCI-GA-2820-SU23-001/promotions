@@ -13,9 +13,9 @@ def convert_data(data):
             if key in ['whole_store', 'has_been_extended', 'promotion_changes_price']:
                 data[key] = data[key] == 'True'
     # flake8: noqa: F841
-    except ValueError as error:
+    except ValueError:
         raise DataValidationError(f'Could not convert {key}')
-    except TypeError as error:
+    except TypeError:
         raise DataValidationError(f'Could not convert {key}')
 
 
