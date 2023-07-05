@@ -165,14 +165,41 @@ class TestYourResourceServer(TestCase):
 
     def test_update(self):
         """ It should respond to a valid update with a 200 status code and the new object. """
-        resp = self.client.put("/promotions/1")
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        test_promo = PromoFactory()
+        data = {k: str(v) for k, v in test_promo.serialize().items()}
+        response = self.client.post("/promotions", json=data, headers={
+            'Content-type': 'application/json',
+            'Accept': 'application/json',
+        })
+        self.assertEqual(
+            response.status_code, status.HTTP_201_CREATED, "Could not create test promotion"
+        )
+        new_promo = response.get_json()
+        logging.debug(new_promo)
+        new_promo["name"] = "testupdate"
+        test_id = str(new_promo["id"])
+        response = self.client.put("/promotions/"+test_id, json=new_promo, headers={
+            'Content-type': 'application/json',
+            'Accept': 'application/json',
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        updated_promo = response.get_json()
+        self.assertEqual(updated_promo['name'], "testupdate")
+
+    def test_update_not_found(self):
+        """ It should respond to a invalid update with a 404 status code. """
+        response = self.client.put("/promotions/0")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
 
     def test_delete(self):
         """It should Delete a promotion"""
-        test_pet = self._create_promotions(1)[0]
-        response = self.client.delete(f"promotions/{test_pet.id}")
+        test_promo = self._create_promotions(1)[0]
+        response = self.client.delete(f"promotions/{test_promo.id}")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(len(response.data), 0)
-        response = self.client.get(f"promotions/{test_pet.id}")
+
+    def test_delete_not_found(self):
+        """It should Delete a promotion and return 404 if not found."""
+        response = self.client.get("/promotions/0")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
