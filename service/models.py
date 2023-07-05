@@ -19,16 +19,13 @@ message: string, get&set
 promotion_changes_price: boolean, get&set
 
 """
-
-import logging
+from . import app
 from datetime import date
-from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
 
-from . import app
 
 # Function to initialize the database
 def init_db(app):
@@ -38,7 +35,7 @@ def init_db(app):
 
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
-    status_code = 400 # copied format from https://flask.palletsprojects.com/en/2.3.x/errorhandling/
+    status_code = 400  # copied format from https://flask.palletsprojects.com/en/2.3.x/errorhandling/
 
     def __init__(self, message, status_code=None, payload=None):
         super().__init__()
@@ -70,7 +67,6 @@ class Promotion(db.Model):
     message = db.Column(db.String(63))
     promotion_changes_price = db.Column(db.Boolean, default=False)
 
-
     def __repr__(self):
         return f"<Promotion {self.name} id=[{self.id}]>"
 
@@ -101,7 +97,7 @@ class Promotion(db.Model):
     def serialize(self):
         """ Serializes a YourResourceModel into a dictionary """
         return {
-            "id": self.id, 
+            "id": self.id,
             "name": self.name,
             "start_date": self.start_date,
             "end_date": self.end_date,
@@ -111,8 +107,8 @@ class Promotion(db.Model):
             "message": self.message,
             "promotion_changes_price": self.promotion_changes_price,
         }
-    
 
+    # flake8: noqa: C901
     def deserialize(self, data):
         """
         Deserializes a Promotion from a dictionary
