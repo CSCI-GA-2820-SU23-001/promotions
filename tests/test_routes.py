@@ -185,7 +185,11 @@ class TestYourResourceServer(TestCase):
 
 
     def test_delete(self):
-        """ It should respond to a valid delete with a 204 status code. """
-        resp = self.client.delete("/promotions/1")
-        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+        """It should Delete a promotion"""
+        test_pet = self._create_promotions(1)[0]
+        response = self.client.delete(f"promotions/{test_pet.id}")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(len(response.data), 0)
+        response = self.client.get(f"promotions/{test_pet.id}")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     

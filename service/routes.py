@@ -111,8 +111,17 @@ def list_promotions():
 ######################################################################
 @app.route("/promotions/<int:promotion_id>", methods=["DELETE"])
 def delete_promotion(promotion_id):
-    """ Delete Promotion response """
+    """ 
+    Delete Promotion response 
+    This endpoint will delete a promotion based the id specified in the path
+    """
+    app.logger.info("Request to delete a promotion with id %s", promotion_id)
+    promo = Promotion.find(promotion_id)
+    if not promo:
+        abort(status.HTTP_404_NOT_FOUND, f"Promotion with id '{promotion_id} was not found.")
+    promo.delete()
+    app.logger.info("Promotion with ID [%s] delete complete.", promotion_id)
     return (
-        "Return the delete endpoint payload here in JSON Format.",
-        status.HTTP_204_NO_CONTENT,
+        "Did not find promotions with given ID",
+        status.HTTP_204_NO_CONTENT
     )
