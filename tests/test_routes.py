@@ -191,7 +191,6 @@ class TestYourResourceServer(TestCase):
         response = self.client.put("/promotions/0")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-
     def test_delete(self):
         """It should Delete a promotion"""
         test_promo = self._create_promotions(1)[0]
@@ -201,5 +200,5 @@ class TestYourResourceServer(TestCase):
 
     def test_delete_not_found(self):
         """It should Delete a promotion and return 404 if not found."""
-        response = self.client.delete(f"promotions/0")
+        response = self.client.delete('promotions/0')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
