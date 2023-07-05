@@ -5,9 +5,10 @@ This service allows administrators to set and update promotions on our ecommerce
 
 The service has the 6 following routes: Create, Read, Update, Delete, List and the root.
 """
+import json
 from flask import Flask, jsonify, request, url_for, make_response, abort
 from service.common import status  # HTTP Status Codes
-from service.models import Promotion, DataValidationError, db # Import Promotion Model
+from service.models import Promotion, DataValidationError # Import Promotion Model
 from service.helpers import convert_data, convert_data_back
 
 # Import Flask application
