@@ -55,6 +55,110 @@ tests/              - test cases package
 └── test_routes.py  - test suite for service routes
 ```
 
+## API
+
+`/promotions/create`
+
+returns
+
+```
+{
+    <id> : <value>
+    <name>: <value>
+    <start_date>: <value>
+    <end_date>: <value>
+    <is_active>: <value>
+    <whole_store>: <value>
+    <has_been_extended>: <false>
+    <original_end_date>: <end_date>
+    <message>: <value>
+    <promotion_changes_price>: <value>
+}
+
+or 
+
+{
+<error>:<message>
+}
+```
+
+`promotions/read/{id}`
+
+```
+{
+    <name>: <value>
+    <id>: <value>
+    <start_date>: <value>
+    <end_date>: <value>
+    <is_active>: <value>
+    <whole_store>: <value>
+    <has_been_extended>: <false>
+    <original_end_date>: <end_date>
+    <message>: <value>
+    <promotion_changes_price>: <value>
+}
+
+or 
+
+{
+<error>:<message>
+}
+```
+
+`promotions/list`
+
+```
+[
+    {
+        <id> : <value>
+        <name>: <value>
+        <start_date>: <value>
+        <end_date>: <value>
+        <is_active>: <value>
+        <whole_store>: <value>
+        <has_been_extended>: <false>
+        <original_end_date>: <end_date>
+        <message>: <value>
+        <promotion_changes_price>: <value>
+    }
+]
+```
+
+`promotions/update/{id}`
+
+```
+{
+    <name>: <value>
+    <id>: <value>
+    <start_date>: <value>
+    <end_date>: <value>
+    <is_active>: <value>
+    <whole_store>: <value>
+    <has_been_extended>: <false>
+    <original_end_date>: <end_date>
+    <message>: <value>
+    <promotion_changes_price>: <value>
+}
+
+or 
+
+{
+<error>:<message>
+}
+```
+
+`promotions/delete/{id}`
+
+```
+{
+<success>:<message>
+}
+or
+{
+<error>:<message>
+}
+```
+
 ## License
 
 Copyright (c) John Rofrano. All rights reserved.
