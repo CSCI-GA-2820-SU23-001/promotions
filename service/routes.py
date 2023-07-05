@@ -5,9 +5,9 @@ This service allows administrators to set and update promotions on our ecommerce
 
 The service has the 6 following routes: Create, Read, Update, Delete, List and the root.
 """
-from flask import jsonify, request, make_response
+from flask import Flask, jsonify, request, url_for, make_response, abort
 from service.common import status  # HTTP Status Codes
-from service.models import Promotion  # Import Promotion Model
+from service.models import Promotion, DataValidationError, db # Import Promotion Model
 from service.helpers import convert_data, convert_data_back
 
 # Import Flask application
@@ -59,17 +59,25 @@ def create_promotion():
     )
 
 ######################################################################
-#  READ A PROMOTION
+# READ A PROMOTION
 ######################################################################
 
 
 @app.route("/promotions/<int:promotion_id>", methods=["GET"])
 def read_promotions(promotion_id):
-    """ Read Promotion response """
-    return (
-        "Return the read endpoint payload here in JSON Format.",
-        status.HTTP_200_OK,
-    )
+    """
+    Retrieve a single Promotion
+
+    This endpoint will return a Promotion based on it's id
+    """
+    app.logger.info("Request for promotion with id: %s", promotion_id)
+    promotion = Promotion.find(promotion_id)
+    if not promotion:
+        abort(status.HTTP_404_NOT_FOUND, f"Promotion with id '{promotion_id}' was not found.")
+
+    app.logger.info("Returning promotion: %s", promotion.name)
+    return jsonify(promotion.serialize()), status.HTTP_200_OK
+
 
 ######################################################################
 #  UPDATE A PROMOTION
@@ -84,18 +92,24 @@ def update_promotion(promotion_id):
         status.HTTP_200_OK,
     )
 
+
 ######################################################################
-#  LIST ALL PROMOTIONS
+# LIST ALL PROMOTIONS
 ######################################################################
 
 
 @app.route("/promotions", methods=["GET"])
 def list_promotions():
-    """ List Promotion response """
-    return (
-        "Return the list endpoint payload here in JSON Format.",
-        status.HTTP_200_OK,
-    )
+    """Returns all of the Promotions"""
+    app.logger.info("Request for promotion list")
+    promotions = []
+    
+    promotions = Promotion.all()
+
+    results = [promotion.serialize() for promotion in promotions]
+    app.logger.info("Returning %d promotions", len(results))
+    return jsonify(results), status.HTTP_200_OK
+
 
 ######################################################################
 #  DELETE A PROMOTION

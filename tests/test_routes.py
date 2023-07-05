@@ -33,10 +33,30 @@ class TestYourResourceServer(TestCase):
     def setUp(self):
         """ This runs before each test """
         self.client = app.test_client()
+        db.session.query(Promotion).delete()  # clean up the last tests
+        db.session.commit()
 
     def tearDown(self):
         """ This runs after each test """
 
+    def _create_promotions(self, count):
+        """Factory method to create pets in bulk"""
+        promotions = []
+        for _ in range(count):
+            test_promotion = PromoFactory()
+            data = {k: str(v) for k,v in test_promotion.serialize().items()}
+            response = self.client.post("/promotions", json=data, headers={
+                'Content-type':'application/json', 
+                'Accept':'application/json'
+            })
+            self.assertEqual(
+                response.status_code, status.HTTP_201_CREATED, "Could not create test promotion"
+            )
+            new_promotion = response.get_json()
+            test_promotion.id = new_promotion["id"]
+            promotions.append(test_promotion)
+        return promotions
+  
     ######################################################################
     #  P L A C E   T E S T   C A S E S   H E R E
     ######################################################################
@@ -130,22 +150,38 @@ class TestYourResourceServer(TestCase):
         data['whole_store'] = None
         self.assertRaises((DataValidationError, ValueError), convert_data_back, data)
 
+    def test_get_promotion(self):
+        """ It should Get a single Promotion """
+        # get the id of a promotion
+        test_promotion = self._create_promotions(1)[0]
+        response = self.client.get("/promotions/{}".format(test_promotion.id), content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(data["name"], test_promotion.name)
+    
 
+    def test_get_promotion_not_found(self):
+        """It should not Get a Promotion thats not found"""
+        response = self.client.get("/promotions/0")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        data = response.get_json()
+        logging.debug("Response data = %s", data)
+        self.assertIn("was not found", data["message"])
 
-    def test_read(self):
-        """ It should respond to a valid read with a 200 status code and complete data. """
-        resp = self.client.get("/promotions/1")
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+    
+    def test_list_promotion(self):
+        """It should Get a list of Promotions"""
+        self._create_promotions(5)
+        response = self.client.get("/promotions")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), 5)
 
     def test_update(self):
         """ It should respond to a valid update with a 200 status code and the new object. """
         resp = self.client.put("/promotions/1")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-    def test_list(self):
-        """ It should respond to a list request with a 200 status code and all the available data. """
-        resp = self.client.get("/promotions")
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
     def test_delete(self):
         """ It should respond to a valid delete with a 204 status code. """
