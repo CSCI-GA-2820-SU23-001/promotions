@@ -55,6 +55,7 @@ class TestYourResourceServer(TestCase):
         data_orig = promo.serialize()
         del data_orig['id'] # user is not supposed to send ID, they're supposed to receive it
         data = {k: str(v) for k,v in data_orig.items()}
+        app.logger.debug(f'Happy Path: Test Passing to Create: {data}')
         resp = self.client.post(
             "/promotions", 
             json = data,
@@ -65,9 +66,10 @@ class TestYourResourceServer(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         response_json = resp.get_json()
-        app.logger.debug(f'Create Test Reponse: {response_json}')
+        app.logger.debug(f'Happy Path: Create Test Reponse: {response_json}')
         del response_json['id'] # user didnt send ID so obviously cant include it in the assert
         del response_json['original_end_date'] # original end date is set by the API as well
+        del response_json['resource_url']
         del data['original_end_date'] # see above
         self.assertEqual(response_json, data)
 
@@ -88,6 +90,7 @@ class TestYourResourceServer(TestCase):
                     'Accept':'application/json'
                 }
             )
+            app.logger.debug(f'Sad Path: Dropping {field} from Create Test yielded {resp.status_code}')
             self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_with_start_and_end_mismatch(self):
@@ -105,6 +108,7 @@ class TestYourResourceServer(TestCase):
                 'Accept':'application/json'
             }
         )
+        app.logger.debug(f'Sad Path: End date < Start Date in Create yielded {resp.status_code}')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
 

@@ -51,6 +51,8 @@ def create_promotion():
     promo.create()
     data_out = promo.serialize()
     convert_data_back(data_out)
+    resource_id = data_out['id']
+    data_out['resource_url'] = f'/promotions/{resource_id}'
     return (
         jsonify(data_out),
         status.HTTP_201_CREATED,
