@@ -5,10 +5,9 @@ This service allows administrators to set and update promotions on our ecommerce
 
 The service has the 6 following routes: Create, Read, Update, Delete, List and the root.
 """
-import json
-from flask import Flask, jsonify, request, url_for, make_response, abort
-from service.common import status  # HTTP Status Codes
-from service.models import Promotion, DataValidationError # Import Promotion Model
+from flask import jsonify, request, make_response, abort
+from service.common import status   # HTTP Status Codes
+from service.models import Promotion  # Import Promotion Model
 from service.helpers import convert_data, convert_data_back
 
 # Import Flask application
@@ -17,6 +16,7 @@ from . import app
 ######################################################################
 # GET INDEX
 ######################################################################
+
 
 @app.route("/")
 def index():
@@ -61,13 +61,11 @@ def create_promotion():
 ######################################################################
 # READ A PROMOTION
 ######################################################################
+
+
 @app.route("/promotions/<int:promotion_id>", methods=["GET"])
 def read_promotions(promotion_id):
-    """
-    Retrieve a single Promotion
-
-    This endpoint will return a Promotion based on it's id
-    """
+    """Retrieve a single Promotion. This endpoint will return a Promotion based on it's id"""
     app.logger.info("Request for promotion with id: %s", promotion_id)
     promotion = Promotion.find(promotion_id)
     if not promotion:
@@ -76,10 +74,10 @@ def read_promotions(promotion_id):
     app.logger.info("Returning promotion: %s", promotion.name)
     return jsonify(promotion.serialize()), status.HTTP_200_OK
 
-
 ######################################################################
 #  UPDATE A PROMOTION
 ######################################################################
+
 
 @app.route('/promotions/<int:promotion_id>', methods=['PUT'])
 def update_promotion(promotion_id):
@@ -98,7 +96,7 @@ def list_promotions():
     """Returns all of the Promotions"""
     app.logger.info("Request for promotion list")
     promotions = []
-    
+
     promotions = Promotion.all()
 
     results = [promotion.serialize() for promotion in promotions]
@@ -111,8 +109,8 @@ def list_promotions():
 ######################################################################
 @app.route("/promotions/<int:promotion_id>", methods=["DELETE"])
 def delete_promotion(promotion_id):
-    """ 
-    Delete Promotion response 
+    """
+    Delete Promotion response
     This endpoint will delete a promotion based the id specified in the path
     """
     app.logger.info("Request to delete a promotion with id %s", promotion_id)

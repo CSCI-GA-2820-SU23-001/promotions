@@ -5,11 +5,9 @@ Test cases can be run with the following:
   nosetests -v --with-spec --spec-color
   coverage report -m
 """
-import os
 import logging
 from datetime import timedelta
 from unittest import TestCase
-from unittest.mock import MagicMock, patch
 from service import app
 from service.models import Promotion, DataValidationError, db
 from service.common import status  # HTTP Status Codes
@@ -46,10 +44,10 @@ class TestYourResourceServer(TestCase):
         promotions = []
         for _ in range(count):
             test_promotion = PromoFactory()
-            data = {k: str(v) for k,v in test_promotion.serialize().items()}
+            data = {k: str(v) for k, v in test_promotion.serialize().items()}
             response = self.client.post("/promotions", json=data, headers={
-                'Content-type':'application/json', 
-                'Accept':'application/json'
+                'Content-type': 'application/json',
+                'Accept': 'application/json',
             })
             self.assertEqual(
                 response.status_code, status.HTTP_201_CREATED, "Could not create test promotion"
@@ -58,7 +56,7 @@ class TestYourResourceServer(TestCase):
             test_promotion.id = new_promotion["id"]
             promotions.append(test_promotion)
         return promotions
-  
+
     ######################################################################
     #  P L A C E   T E S T   C A S E S   H E R E
     ######################################################################
@@ -67,30 +65,27 @@ class TestYourResourceServer(TestCase):
         """ It should call the home page """
         resp = self.client.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(resp.get_json()), 6) #test number of endpoints coming back
-    
+        self.assertEqual(len(resp.get_json()), 6)     # test number of endpoints coming back
+
     def test_create(self):
         """ It should respond to a proper create with 201 status code and return the data. """
         promo = PromoFactory()
         data_orig = promo.serialize()
-        del data_orig['id'] # user is not supposed to send ID, they're supposed to receive it
-        data = {k: str(v) for k,v in data_orig.items()}
+        del data_orig['id']   # user is not supposed to send ID, they're supposed to receive it
+        data = {k: str(v) for k, v in data_orig.items()}
         app.logger.debug(f'Happy Path: Test Passing to Create: {data}')
-        resp = self.client.post(
-            "/promotions", 
-            json = data,
-            headers={
-                'Content-type':'application/json', 
-                'Accept':'application/json'
+        resp = self.client.post("/promotions", json=data, headers={
+                'Content-type': 'application/json',
+                'Accept': 'application/json',
             }
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         response_json = resp.get_json()
         app.logger.debug(f'Happy Path: Create Test Reponse: {response_json}')
-        del response_json['id'] # user didnt send ID so obviously cant include it in the assert
-        del response_json['original_end_date'] # original end date is set by the API as well
+        del response_json['id']      # user didnt send ID so obviously cant include it in the assert
+        del response_json['original_end_date']   # original end date is set by the API as well
         del response_json['resource_url']
-        del data['original_end_date'] # see above
+        del data['original_end_date']    # see above
         self.assertEqual(response_json, data)
 
     def test_create_with_bad_data(self):
@@ -98,16 +93,13 @@ class TestYourResourceServer(TestCase):
         promo = PromoFactory()
         data = promo.serialize()
         del data['id']
-        data = {k: str(v) for k,v in data.items()}
+        data = {k: str(v) for k, v in data.items()}
         for field in data.keys():
             new_data = data.copy()
             del new_data[field]
-            resp = self.client.post(
-                "/promotions", 
-                json = new_data,
-                headers={
-                    'Content-type':'application/json', 
-                    'Accept':'application/json'
+            resp = self.client.post("/promotions", json=new_data, headers={
+                    'Content-type': 'application/json',
+                    'Accept': 'application/json',
                 }
             )
             app.logger.debug(f'Sad Path: Dropping {field} from Create Test yielded {resp.status_code}')
@@ -118,19 +110,14 @@ class TestYourResourceServer(TestCase):
         promo = PromoFactory()
         data = promo.serialize()
         del data['id']
-        data['end_date'] = data['start_date'] - timedelta(days = 2)
-        data = {k: str(v) for k,v in data.items()}
-        resp = self.client.post(
-            "/promotions", 
-            json = data,
-            headers={
-                'Content-type':'application/json', 
-                'Accept':'application/json'
-            }
-        )
+        data['end_date'] = data['start_date'] - timedelta(days=2)
+        data = {k: str(v) for k, v in data.items()}
+        resp = self.client.post("/promotions", json=data, headers={
+            'Content-type': 'application/json',
+            'Accept': 'application/json',
+        })
         app.logger.debug(f'Sad Path: End date < Start Date in Create yielded {resp.status_code}')
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
-
 
     def test_helpers(self):
         """ It should return an error when converting data that does not conform"""
@@ -159,7 +146,6 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(data["name"], test_promotion.name)
-    
 
     def test_get_promotion_not_found(self):
         """It should not Get a Promotion thats not found"""
@@ -169,7 +155,6 @@ class TestYourResourceServer(TestCase):
         logging.debug("Response data = %s", data)
         self.assertIn("was not found", data["message"])
 
-    
     def test_list_promotion(self):
         """It should Get a list of Promotions"""
         self._create_promotions(5)
@@ -183,7 +168,6 @@ class TestYourResourceServer(TestCase):
         resp = self.client.put("/promotions/1")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
 
-
     def test_delete(self):
         """It should Delete a promotion"""
         test_pet = self._create_promotions(1)[0]
@@ -192,4 +176,3 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(len(response.data), 0)
         response = self.client.get(f"promotions/{test_pet.id}")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-    

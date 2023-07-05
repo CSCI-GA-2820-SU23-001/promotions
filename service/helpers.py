@@ -1,8 +1,8 @@
-from datetime import date
 import datetime
 from service.models import DataValidationError
 
 from . import app
+
 
 def convert_data(data):
     """ Helper for routes to convert data types"""
@@ -12,9 +12,9 @@ def convert_data(data):
                 data[key] = datetime.datetime.strptime(data[key], "%Y-%m-%d").date()
             if key in ['whole_store', 'has_been_extended', 'promotion_changes_price']:
                 data[key] = data[key] == 'True'
-    except ValueError as error:
+    except ValueError:
         raise DataValidationError(f'Could not convert {key}')
-    except TypeError as error:
+    except TypeError:
         raise DataValidationError(f'Could not convert {key}')
 
 
