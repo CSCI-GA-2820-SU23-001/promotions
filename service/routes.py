@@ -5,10 +5,9 @@ This service allows administrators to set and update promotions on our ecommerce
 
 The service has the 6 following routes: Create, Read, Update, Delete, List and the root.
 """
-import json
-from flask import Flask, jsonify, request, url_for, make_response, abort
+from flask import jsonify, request, make_response
 from service.common import status  # HTTP Status Codes
-from service.models import Promotion, DataValidationError # Import Promotion Model
+from service.models import Promotion  # Import Promotion Model
 from service.helpers import convert_data, convert_data_back
 
 # Import Flask application
@@ -17,6 +16,7 @@ from . import app
 ######################################################################
 # GET INDEX
 ######################################################################
+
 
 @app.route("/")
 def index():
@@ -62,6 +62,7 @@ def create_promotion():
 #  READ A PROMOTION
 ######################################################################
 
+
 @app.route("/promotions/<int:promotion_id>", methods=["GET"])
 def read_promotions(promotion_id):
     """ Read Promotion response """
@@ -74,6 +75,7 @@ def read_promotions(promotion_id):
 #  UPDATE A PROMOTION
 ######################################################################
 
+
 @app.route('/promotions/<int:promotion_id>', methods=['PUT'])
 def update_promotion(promotion_id):
     """ Update Promotion response """
@@ -85,6 +87,8 @@ def update_promotion(promotion_id):
 ######################################################################
 #  LIST ALL PROMOTIONS
 ######################################################################
+
+
 @app.route("/promotions", methods=["GET"])
 def list_promotions():
     """ List Promotion response """
@@ -96,6 +100,8 @@ def list_promotions():
 ######################################################################
 #  DELETE A PROMOTION
 ######################################################################
+
+
 @app.route("/promotions/<int:promotion_id>", methods=["DELETE"])
 def delete_promotion(promotion_id):
     """ Delete Promotion response """

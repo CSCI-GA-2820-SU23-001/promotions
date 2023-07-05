@@ -5,7 +5,6 @@ Test cases can be run with the following:
   nosetests -v --with-spec --spec-color
   coverage report -m
 """
-import os
 import logging
 from datetime import timedelta
 from unittest import TestCase

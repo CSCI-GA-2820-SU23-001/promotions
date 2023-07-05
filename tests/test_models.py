@@ -25,6 +25,8 @@ DATABASE_URI = os.getenv(
 ######################################################################
 #  PromotionModel   M O D E L   T E S T   C A S E S
 ######################################################################
+
+
 class TestPromotionModel(unittest.TestCase):
     """ Test Cases for Promotion """
 
@@ -35,7 +37,6 @@ class TestPromotionModel(unittest.TestCase):
         app.config["DEBUG"] = False
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
         app.logger.setLevel(logging.CRITICAL)
-
 
     @classmethod
     def tearDownClass(cls):
@@ -59,6 +60,7 @@ class TestPromotionModel(unittest.TestCase):
         """It should Create a promotion and assert that it exists"""
         today = date.today()
         tomorrow = today + timedelta(1)
+        # flake8: noqa: E501
         promo = Promotion(name="20% Off", start_date=today, end_date=tomorrow, whole_store=True, message="This is a test!", promotion_changes_price=True)
         self.assertEqual(str(promo), "<Promotion 20% Off id=[None]>")
         self.assertTrue(promo is not None)
@@ -69,6 +71,7 @@ class TestPromotionModel(unittest.TestCase):
         self.assertEqual(promo.is_active(), True)
         self.assertEqual(promo.whole_store, True)
         self.assertEqual(promo.message, "This is a test!")
+        # pylint: disable=line-too-long
         self.assertEqual(promo.promotion_changes_price, True)
         promo = Promotion(name="20% Off", start_date=today, end_date=tomorrow, whole_store=False, message="This is a test!", promotion_changes_price=False)
         self.assertEqual(promo.whole_store, False)
@@ -77,6 +80,7 @@ class TestPromotionModel(unittest.TestCase):
     def test_add_a_promotion(self):
         """It should Create a promotion and add it to the database"""
         today = date.today()
+        # pylint: disable=line-too-long
         tomorrow = today + timedelta(1)
         promos = Promotion.all()
         self.assertEqual(promos, [])
@@ -223,12 +227,14 @@ class TestPromotionModel(unittest.TestCase):
         """It should not deserialize bad data"""
         data = "this is not a dictionary"
         promo = Promotion()
+        # pylint: disable=line-too-long
         self.assertRaises(DataValidationError, promo.deserialize, data)
 
     def test_deserialize_bad_end_date(self):
         """It should not deserialize dictionaries with bad end_date"""
         today = date.today()
         data = {"id": 1, "name": "20% Off", "start_date": today, "end_date": "string", "whole_store": True, "message": "This is a test!"}
+        # pylint: disable=line-too-long
         promo = Promotion()
         self.assertRaises(DataValidationError, promo.deserialize, data)
 
@@ -236,6 +242,7 @@ class TestPromotionModel(unittest.TestCase):
         """It should not deserialize dictionaries with bad start_date"""
         today = date.today()
         data = {"id": 1, "name": "20% Off", "start_date": "wrong", "end_date": today, "whole_store": True, "message": "This is a test!"}
+        # pylint: disable=line-too-long
         promo = Promotion()
         self.assertRaises(DataValidationError, promo.deserialize, data)
 
@@ -370,13 +377,6 @@ class TestPromotionModel(unittest.TestCase):
         today = date.today() + timedelta(1)
         tomorrow = today + timedelta(3)
         promo = Promotion(name="20% Off", start_date=today, end_date=tomorrow, whole_store=True, message="This is a test!", promotion_changes_price=True)
-        self.assertFalse(promo.is_active())
-
-    def test_is_active(self):
-        """A Promotion should not be active if it was created before or on today's date"""
-        start = date.today() + timedelta(1)
-        end = start + timedelta(1)
-        promo = Promotion(name="20% Off", start_date=start, end_date=end, whole_store=True, message="This is a test!", promotion_changes_price=True)
         self.assertFalse(promo.is_active())
 
     def test_find_or_404_found(self):
