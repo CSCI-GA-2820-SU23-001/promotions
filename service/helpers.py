@@ -12,6 +12,7 @@ def convert_data(data):
                 data[key] = datetime.datetime.strptime(data[key], "%Y-%m-%d").date()
             if key in ['whole_store', 'has_been_extended', 'promotion_changes_price']:
                 data[key] = data[key] == 'True'
+    # flake8: noqa: F841
     except ValueError:
         raise DataValidationError(f'Could not convert {key}')
     except TypeError:

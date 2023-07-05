@@ -99,6 +99,8 @@ def update_promotion(promotion_id):
 ######################################################################
 # LIST ALL PROMOTIONS
 ######################################################################
+
+
 @app.route("/promotions", methods=["GET"])
 def list_promotions():
     """Returns all of the Promotions"""
@@ -115,6 +117,8 @@ def list_promotions():
 ######################################################################
 #  DELETE A PROMOTION
 ######################################################################
+
+
 @app.route("/promotions/<int:promotion_id>", methods=["DELETE"])
 def delete_promotion(promotion_id):
     """ Delete Promotion response """
