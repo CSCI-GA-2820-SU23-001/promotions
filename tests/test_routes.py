@@ -9,7 +9,7 @@ import logging
 from datetime import timedelta
 from unittest import TestCase
 from service import app
-from service.models import DataValidationError
+from service.models import Promotion, DataValidationError, db
 from service.common import status  # HTTP Status Codes
 from service.helpers import convert_data, convert_data_back
 from tests.factories import PromoFactory
