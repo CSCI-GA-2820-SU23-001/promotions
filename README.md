@@ -57,9 +57,9 @@ tests/              - test cases package
 
 ## API
 
-`/promotions/create`
+**call:** `/promotions/create`
 
-returns
+**returns**
 
 ```
 {
@@ -82,7 +82,9 @@ or
 }
 ```
 
-`promotions/read/{id}`
+**call:** `promotions/read/{id}`
+
+**returns**
 
 ```
 {
@@ -105,7 +107,9 @@ or
 }
 ```
 
-`promotions/list`
+**call:** `promotions/list`
+
+**return**
 
 ```
 [
@@ -124,7 +128,9 @@ or
 ]
 ```
 
-`promotions/update/{id}`
+**call:** `promotions/update/{id}`
+
+**return**
 
 ```
 {
@@ -147,7 +153,9 @@ or
 }
 ```
 
-`promotions/delete/{id}`
+**call:** `promotions/delete/{id}`
+
+**return**
 
 ```
 {
