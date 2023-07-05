@@ -5,17 +5,19 @@ This service allows administrators to set and update promotions on our ecommerce
 
 The service has the 6 following routes: Create, Read, Update, Delete, List and the root.
 """
-
+import json
 from flask import Flask, jsonify, request, url_for, make_response, abort
 from service.common import status  # HTTP Status Codes
+from service.models import Promotion, DataValidationError # Import Promotion Model
+from service.helpers import convert_data, convert_data_back
 
 # Import Flask application
 from . import app
 
-
 ######################################################################
 # GET INDEX
 ######################################################################
+
 @app.route("/")
 def index():
     """ Root URL response """
@@ -41,9 +43,19 @@ def index():
 @app.route("/promotions", methods=["POST"])
 def create_promotion():
     """ Create Promotion Response """
+    app.logger.warning("Create Route Called")
+    promo = Promotion()
+    json_data = request.get_json()
+    convert_data(json_data)
+    promo.deserialize(json_data)
+    promo.create()
+    data_out = promo.serialize()
+    convert_data_back(data_out)
+    resource_id = data_out['id']
+    data_out['resource_url'] = f'/promotions/{resource_id}'
     return (
-        "Return the create endpoint payload here in JSON Format.",
-        status.HTTP_200_OK,
+        jsonify(data_out),
+        status.HTTP_201_CREATED,
     )
 
 ######################################################################
@@ -89,5 +101,5 @@ def delete_promotion(promotion_id):
     """ Delete Promotion response """
     return (
         "Return the delete endpoint payload here in JSON Format.",
-        status.HTTP_200_OK,
+        status.HTTP_204_NO_CONTENT,
     )
