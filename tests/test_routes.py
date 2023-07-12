@@ -199,6 +199,74 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(len(response.data), 0)
 
     def test_delete_not_found(self):
-        """It should Delete a promotion and return 204 if not found."""
+        """It should Delete a promotion and return 404 if not found."""
         response = self.client.delete('promotions/0')
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+class TestJustDateExtensions(TestCase):
+    def setUp(self):
+        """ This runs before each test """
+        self.client = app.test_client()
+        db.session.query(Promotion).delete()  # clean up the last tests
+        db.session.commit()
+
+        promo = PromoFactory()
+        data_orig = promo.serialize()
+        del data_orig['id']   # user is not supposed to send ID, they're supposed to receive it
+        data = {k: str(v) for k, v in data_orig.items()}
+        response = self.client.post("/promotions", json=data, headers={
+                'Content-type': 'application/json',
+                'Accept': 'application/json',
+            }
+        )
+        response_json = response.get_json()
+        self.date_extension_end_date = data_orig['end_date']
+        self.date_extension_start_date = data_orig['start_date']
+        self.date_extension_id = response_json['id']
+
+    def tearDown(self):
+        """ This runs after each test """
+
+    def test_extend_date(self): 
+        """ It should respond to a valid end date extension with a 200 status code and the new object. """
+        new_end_date = self.date_extension_end_date + timedelta(days = 10)
+        id_data = self.date_extension_id
+        new_data = {'end_date': new_end_date}
+        new_data_string = {k: str(v) for k, v in new_data.items()}
+        response = self.client.put(f"/promotions/change_end_date/{id_data}", json=new_data_string, headers={
+            'Content-type': 'application/json',
+            'Accept': 'application/json',
+        })
+        self.assertEqual(
+            response.status_code, status.HTTP_200_OK
+        )
+        new_promo = response.get_json()
+        logging.debug(new_promo)
+        self.assertEqual(new_promo['end_date'], new_data_string['end_date'])
+        self.assertEqual(new_promo['id'], id_data)
+
+    def test_extend_date_start_date(self): 
+        """ It should respond to an end date extension where start date > end date with a 400. """
+        new_end_date = self.date_extension_start_date - timedelta(days = 10)
+        id_data = self.date_extension_id
+        new_data = {'end_date': new_end_date}
+        new_data_string = {k: str(v) for k, v in new_data.items()}
+        response = self.client.put(f"/promotions/change_end_date/{id_data}", json=new_data_string, headers={
+            'Content-type': 'application/json',
+            'Accept': 'application/json',
+        })
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST
+        )
+
+    def test_extend_date_incorrect_date(self): 
+        """ It should respond to an end date extension with incorrect date data with a 400. """
+        id_data = self.date_extension_id
+        new_data_string = {'missing': 'missing'}
+        response = self.client.put(f"/promotions/change_end_date/{id_data}", json=new_data_string, headers={
+            'Content-type': 'application/json',
+            'Accept': 'application/json',
+        })
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST
+        )
