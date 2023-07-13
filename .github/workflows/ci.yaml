@@ -34,7 +34,7 @@ jobs:
             
       - name: Install dependencies
         run: |
-          python3 -m pip install --upgrade pip wheel
+          sudo -H python3 -m pip install --upgrade pip wheel
           pip install -r requirements.txt         
 
       - name: Linting
