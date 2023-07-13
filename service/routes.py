@@ -106,8 +106,14 @@ def list_promotions():
     """Returns all of the Promotions"""
     app.logger.info("Request for promotion list")
     promotions = []
-
-    promotions = Promotion.all()
+    message = request.args.get("message")
+    name = request.args.get("name")
+    if message:
+        promotions = Promotion.find_by_message(message)
+    elif name:
+        promotions = Promotion.find_by_name(name)
+    else:
+        promotions = Promotion.all()
 
     results = [promotion.serialize() for promotion in promotions]
     app.logger.info("Returning %d promotions", len(results))

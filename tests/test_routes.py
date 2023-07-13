@@ -155,6 +155,11 @@ class TestYourResourceServer(TestCase):
         logging.debug("Response data = %s", data)
         self.assertIn("was not found", data["message"])
 
+    def test_get_promotion_with_method_not_supported(self):
+        """It should not Read a Promotion with wrong method"""
+        resp = self.client.post('promotions/0')
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
     def test_list_promotion(self):
         """It should Get a list of Promotions"""
         self._create_promotions(5)
@@ -162,6 +167,30 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(len(data), 5)
+
+    def test_query_promotion_list_by_name(self):
+        """ It should query Promotions by Name """
+        promotions = self._create_promotions(10)
+        test_name = promotions[0].name
+        name_promotions = [promotion for promotion in promotions if promotion.name == test_name]
+        response = self.client.get("/promotions", content_type="application/json", query_string="name={}".format(test_name))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), len(name_promotions))
+        for promotion in data:
+            self.assertEqual(promotion["name"], test_name)
+
+    def test_query_promotion_list_by_message(self):
+        """ It should query Promotions by Message """
+        promotions = self._create_promotions(10)
+        test_message = promotions[0].message
+        message_promotions = [promotion for promotion in promotions if promotion.message == test_message]
+        response = self.client.get("/promotions", content_type="application/json", query_string="message={}".format(test_message))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), len(message_promotions))
+        for promotion in data:
+            self.assertEqual(promotion["message"], test_message)
 
     def test_update(self):
         """ It should respond to a valid update with a 200 status code and the new object. """
