@@ -10,6 +10,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # must be python 3
     container: python:3
 
     # Required services    
