@@ -20,7 +20,7 @@ promotion_changes_price: boolean, get&set
 
 """
 from . import app
-from datetime import date
+from datetime import date, timedelta
 from flask_sqlalchemy import SQLAlchemy
 
 # Create the SQLAlchemy object to be initialized later in init_db()
@@ -208,10 +208,19 @@ class Promotion(db.Model):
             raise DataValidationError(
                 "End date update does not contain end_date: "
             )
+        
+    def cancel(self):
+        """
+        Cancels a promotion by setting its end date to today
+
+        Args:
+            None
+        """
+        self.update_end_date({"end_date": (date.today())})
 
     def is_active(self):
         """States if promotion is running"""
-        if self.start_date <= date.today() and self.end_date >= date.today():
+        if self.start_date <= date.today() and self.end_date > date.today():
             return True
         else:
             return False

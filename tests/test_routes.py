@@ -6,7 +6,7 @@ Test cases can be run with the following:
   coverage report -m
 """
 import logging
-from datetime import timedelta
+from datetime import date, timedelta
 from unittest import TestCase
 from service import app
 from service.models import Promotion, DataValidationError, db
@@ -230,6 +230,18 @@ class TestYourResourceServer(TestCase):
     def test_delete_not_found(self):
         """It should Delete a promotion and return 404 if not found."""
         response = self.client.delete('promotions/0')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_cancel(self):
+        """It should cancel a promotion by changing its end date to yesterday."""
+        test_promo = self._create_promotions(1)[0]
+        response = self.client.get("/promotions/cancel/{}".format(test_promo.id), content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.get_json()['end_date'], date.today().strftime('%Y-%m-%d'))
+
+    def test_cancel_not_found(self):
+        """It should return 404 when cancelling an unfound promotion."""
+        response = self.client.get("/promotions/cancel/{}".format(0), content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 class TestJustDateExtensions(TestCase):
