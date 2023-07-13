@@ -106,8 +106,14 @@ def list_promotions():
     """Returns all of the Promotions"""
     app.logger.info("Request for promotion list")
     promotions = []
-
-    promotions = Promotion.all()
+    message = request.args.get("message")
+    name = request.args.get("name")
+    if message:
+        promotions = Promotion.find_by_message(message)
+    elif name:
+        promotions = Promotion.find_by_name(name)
+    else:
+        promotions = Promotion.all()
 
     results = [promotion.serialize() for promotion in promotions]
     app.logger.info("Returning %d promotions", len(results))
@@ -148,6 +154,20 @@ def change_end_date_promotion(promotion_id):
     json_data = request.get_json()
     convert_data(json_data)
     promo.update_end_date(json_data)
+    promo.update()
+    data_out = promo.serialize()
+    convert_data_back(data_out)
+    app.logger.info("Promotion with ID [%s] end date updated.", promotion_id)
+    return jsonify(data_out), status.HTTP_200_OK
+
+@app.route("/promotions/cancel/<int:promotion_id>", methods=["GET"])
+def cancel(promotion_id):
+    """ Cancel a Promotion """
+    app.logger.info("Request to cancel promotion with id %s", promotion_id)
+    promo = Promotion.find(promotion_id)
+    if not promo:
+        abort(status.HTTP_404_NOT_FOUND, f'Promotion with id {promotion_id} was not found.')
+    promo.cancel()
     promo.update()
     data_out = promo.serialize()
     convert_data_back(data_out)
