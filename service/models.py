@@ -183,6 +183,31 @@ class Promotion(db.Model):
                 "Invalid promotion: body of request contained bad or no data " + str(error)
             ) from error
         return self
+    
+    def update_end_date(self, data):
+        """Updates just the end date of the object
+
+        Args:
+            data (dict): data from API endpoint
+
+        Raises:
+            DataValidationError: When the start date > the new end date 
+            DataValidationError: When the end date key is missing.
+        """
+        if 'end_date' in data.keys():
+            if self.start_date > data['end_date']:
+                start_date = self.start_date
+                end_date = data['end_date']
+                raise DataValidationError(
+                    f"Start Date {start_date} > End Date: {end_date}"
+                )
+            else:
+                self.end_date = data["end_date"]
+        else:
+            app.logger.warning('Tripped in End Date')
+            raise DataValidationError(
+                "End date update does not contain end_date: "
+            )
 
     def is_active(self):
         """States if promotion is running"""
