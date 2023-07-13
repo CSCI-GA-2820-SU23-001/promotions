@@ -37,7 +37,6 @@ jobs:
             
       - name: Install dependencies
         run: |
-          sudo -H python -m pip install --upgrade pip wheel
           sudo -H pip install -r requirements.txt       
 
       - name: Linting
