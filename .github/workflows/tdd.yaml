@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: python:3.11-slim
+    container: python:3
 
     # Required services    
     services:
@@ -29,15 +29,12 @@ jobs:
 
     # Steps for the build
     steps:
-      - name: Install sudo package
-        run: apt update && apt install sudo
-
       - name: Checkout
         uses: actions/checkout@v3
             
       - name: Install dependencies
         run: |
-          sudo -H pip install -r requirements.txt       
+          pip install -r requirements.txt       
 
       - name: Linting
         run: |
