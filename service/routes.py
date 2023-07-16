@@ -6,7 +6,7 @@ This service allows administrators to set and update promotions on our ecommerce
 The service has the 6 following routes: Create, Read, Update, Delete, List and the root.
 """
 from flask import jsonify, request, make_response, abort
-from service.common import status   # HTTP Status Codes
+from service.common import status  # HTTP Status Codes
 from service.models import Promotion  # Import Promotion Model
 from service.helpers import convert_data, convert_data_back
 
@@ -20,14 +20,14 @@ from . import app
 
 @app.route("/")
 def index():
-    """ Root URL response """
+    """Root URL response"""
     res = {
-        '/': 'The index endpoint. Lists all the other endpoints.',
-        '/create': 'POST endpoint for creating promotions.',
-        '/read': 'GET endpoint for reading a promotion with an ID.',
-        '/update': 'PUT endpoint for updating a promotion with an ID.',
-        '/list': 'GET endpoint for listing all existing promotions.',
-        '/delete': 'DELETE endpoint for deleting an existing promotion with an ID.',
+        "/": "The index endpoint. Lists all the other endpoints.",
+        "/create": "POST endpoint for creating promotions.",
+        "/read": "GET endpoint for reading a promotion with an ID.",
+        "/update": "PUT endpoint for updating a promotion with an ID.",
+        "/list": "GET endpoint for listing all existing promotions.",
+        "/delete": "DELETE endpoint for deleting an existing promotion with an ID.",
     }
     return make_response(jsonify(res), status.HTTP_200_OK)
 
@@ -40,9 +40,10 @@ def index():
 #  CREATE A PROMOTION
 ######################################################################
 
+
 @app.route("/promotions", methods=["POST"])
 def create_promotion():
-    """ Create Promotion Response """
+    """Create Promotion Response"""
     app.logger.warning("Create Route Called")
     promo = Promotion()
     json_data = request.get_json()
@@ -51,12 +52,13 @@ def create_promotion():
     promo.create()
     data_out = promo.serialize()
     convert_data_back(data_out)
-    resource_id = data_out['id']
-    data_out['resource_url'] = f'/promotions/{resource_id}'
+    resource_id = data_out["id"]
+    data_out["resource_url"] = f"/promotions/{resource_id}"
     return (
         jsonify(data_out),
         status.HTTP_201_CREATED,
     )
+
 
 ######################################################################
 # READ A PROMOTION
@@ -69,23 +71,30 @@ def read_promotions(promotion_id):
     app.logger.info("Request for promotion with id: %s", promotion_id)
     promotion = Promotion.find(promotion_id)
     if not promotion:
-        abort(status.HTTP_404_NOT_FOUND, f"Promotion with id '{promotion_id}' was not found.")
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Promotion with id '{promotion_id}' was not found.",
+        )
 
     app.logger.info("Returning promotion: %s", promotion.name)
     return jsonify(promotion.serialize()), status.HTTP_200_OK
+
 
 ######################################################################
 #  UPDATE A PROMOTION
 ######################################################################
 
 
-@app.route('/promotions/<int:promotion_id>', methods=['PUT'])
+@app.route("/promotions/<int:promotion_id>", methods=["PUT"])
 def update_promotion(promotion_id):
-    """ Update Promotion response """
+    """Update Promotion response"""
     app.logger.info("Request to update promotion with id %s", promotion_id)
     promo = Promotion.find(promotion_id)
     if not promo:
-        abort(status.HTTP_404_NOT_FOUND, f"Promotion with id '{promotion_id} was not found.")
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Promotion with id '{promotion_id} was not found.",
+        )
     json_data = request.get_json()
     convert_data(json_data)
     promo.deserialize(json_data)
@@ -127,7 +136,7 @@ def list_promotions():
 
 @app.route("/promotions/<int:promotion_id>", methods=["DELETE"])
 def delete_promotion(promotion_id):
-    """ Delete Promotion response """
+    """Delete Promotion response"""
     app.logger.info("Request to delete a promotion with id %s", promotion_id)
     promo = Promotion.find(promotion_id)
     if not promo:

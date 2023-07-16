@@ -17,24 +17,24 @@ has_been_extended: boolean, get&set
 original_end_date: date time, get&set
 message: string, get&set
 promotion_changes_price: boolean, get&set
-
 """
-from . import app
-from datetime import date, timedelta
+from datetime import date
 from flask_sqlalchemy import SQLAlchemy
+from . import app
 
 # Create the SQLAlchemy object to be initialized later in init_db()
 db = SQLAlchemy()
 
 
 # Function to initialize the database
-def init_db(app):
-    """ Initializes the SQLAlchemy app """
-    Promotion.init_db(app)
+def init_db(app1):
+    """Initializes the SQLAlchemy app"""
+    Promotion.init_db(app1)
 
 
 class DataValidationError(Exception):
-    """ Used for an data validation errors when deserializing """
+    """Used for an data validation errors when deserializing"""
+
     status_code = 400  # copied format from https://flask.palletsprojects.com/en/2.3.x/errorhandling/
 
     def __init__(self, message, status_code=None, payload=None):
@@ -44,15 +44,19 @@ class DataValidationError(Exception):
         self.payload = payload
 
     def to_dict(self):
-        rv = dict(self.payload or ())
-        rv['message'] = self.message
-        return rv
+        """method for dict transfer"""
+        dict_result = dict(self.payload or ())
+        dict_result["message"] = self.message
+        return dict_result
 
 
 class Promotion(db.Model):
     """
     Class that represents a Promotion
     """
+
+    # pylint: disable=too-many-instance-attributes
+    # Eight is reasonable in this case.
 
     app = None
 
@@ -89,13 +93,13 @@ class Promotion(db.Model):
         db.session.commit()
 
     def delete(self):
-        """ Removes a YourResourceModel from the data store """
+        """Removes a YourResourceModel from the data store"""
         app.logger.info("Deleting %s", self.name)
         db.session.delete(self)
         db.session.commit()
 
     def serialize(self):
-        """ Serializes a YourResourceModel into a dictionary """
+        """Serializes a YourResourceModel into a dictionary"""
         return {
             "id": self.id,
             "name": self.name,
@@ -109,6 +113,7 @@ class Promotion(db.Model):
         }
 
     # flake8: noqa: C901
+    # pylint: disable=too-many-branches
     def deserialize(self, data):
         """
         Deserializes a Promotion from a dictionary
@@ -121,30 +126,28 @@ class Promotion(db.Model):
             if isinstance(data["start_date"], date):
                 self.start_date = data["start_date"]
             else:
-                app.logger.warning('Tripped in Start Date')
+                app.logger.warning("Tripped in Start Date")
                 raise DataValidationError(
                     "Invalid type for date [start_date]: "
                     + str(type(data["start_date"]))
                 )
             if isinstance(data["end_date"], date):
-                if data['start_date'] > data['end_date']:
-                    start_date = data['start_date']
-                    end_date = data['end_date']
+                if data["start_date"] > data["end_date"]:
+                    start_date = data["start_date"]
+                    end_date = data["end_date"]
                     raise DataValidationError(
                         f"Start Date {start_date} > End Date: {end_date}"
                     )
-                else:
-                    self.end_date = data["end_date"]
+                self.end_date = data["end_date"]
             else:
-                app.logger.warning('Tripped in End Date')
+                app.logger.warning("Tripped in End Date")
                 raise DataValidationError(
-                    "Invalid type for date [end_date]: "
-                    + str(type(data["end_date"]))
+                    "Invalid type for date [end_date]: " + str(type(data["end_date"]))
                 )
             if isinstance(data["whole_store"], bool):
                 self.whole_store = data["whole_store"]
             else:
-                app.logger.warning('Tripped in Whole Store')
+                app.logger.warning("Tripped in Whole Store")
                 raise DataValidationError(
                     "Invalid type for date [whole_store]: "
                     + str(type(data["whole_store"]))
@@ -152,7 +155,7 @@ class Promotion(db.Model):
             if isinstance(data["has_been_extended"], bool):
                 self.has_been_extended = data["has_been_extended"]
             else:
-                app.logger.warning('Tripped in extended')
+                app.logger.warning("Tripped in extended")
                 raise DataValidationError(
                     "Invalid type for date [has_been_extended]: "
                     + str(type(data["has_been_extended"]))
@@ -160,7 +163,7 @@ class Promotion(db.Model):
             if isinstance(data["original_end_date"], date):
                 self.original_end_date = data["original_end_date"]
             else:
-                app.logger.warning('Tripped in original end date')
+                app.logger.warning("Tripped in original end date")
                 raise DataValidationError(
                     "Invalid type for date [original_end_date]: "
                     + str(type(data["original_end_date"]))
@@ -169,18 +172,21 @@ class Promotion(db.Model):
             if isinstance(data["promotion_changes_price"], bool):
                 self.promotion_changes_price = data["promotion_changes_price"]
             else:
-                app.logger.warning('Tripped in promotion changes price')
+                app.logger.warning("Tripped in promotion changes price")
                 raise DataValidationError(
                     "Invalid type for date [promotion_changes_price]: "
                     + str(type(data["promotion_changes_price"]))
                 )
         except KeyError as error:
-            app.logger.warning('tripped in Invalid promotion')
-            raise DataValidationError("Invalid promotion: missing " + error.args[0]) from error
-        except TypeError as error:
-            app.logger.warning('Tripped in type error')
+            app.logger.warning("tripped in Invalid promotion")
             raise DataValidationError(
-                "Invalid promotion: body of request contained bad or no data " + str(error)
+                "Invalid promotion: missing " + error.args[0]
+            ) from error
+        except TypeError as error:
+            app.logger.warning("Tripped in type error")
+            raise DataValidationError(
+                "Invalid promotion: body of request contained bad or no data "
+                + str(error)
             ) from error
         return self
     
@@ -222,28 +228,27 @@ class Promotion(db.Model):
         """States if promotion is running"""
         if self.start_date <= date.today() and self.end_date > date.today():
             return True
-        else:
-            return False
+        return False
 
     @classmethod
-    def init_db(cls, app):
-        """ Initializes the database session """
-        app.logger.info("Initializing database")
-        cls.app = app
+    def init_db(cls, app1):
+        """Initializes the database session"""
+        app1.logger.info("Initializing database")
+        cls.app = app1
         # This is where we initialize SQLAlchemy from the Flask app
-        db.init_app(app)
-        app.app_context().push()
+        db.init_app(app1)
+        app1.app_context().push()
         db.create_all()  # make our sqlalchemy tables
 
     @classmethod
     def all(cls):
-        """ Returns all of the YourResourceModels in the database """
+        """Returns all of the YourResourceModels in the database"""
         app.logger.info("Processing all YourResourceModels")
         return cls.query.all()
 
     @classmethod
     def find(cls, by_id):
-        """ Finds a YourResourceModel by it's ID """
+        """Finds a YourResourceModel by it's ID"""
         app.logger.info("Processing lookup for id %s ...", by_id)
         return cls.query.get(by_id)
 
@@ -258,34 +263,34 @@ class Promotion(db.Model):
         return cls.query.filter(cls.name == name)
 
     @classmethod
-    def find_by_start_date(cls, date):
+    def find_by_start_date(cls, start_date):
         """Returns all Promotion with the given start_date
 
         Args:
             start_date (date): the start_date of the Promotion you want to match
         """
-        app.logger.info("Processing name query for %s ...", date)
-        return cls.query.filter(cls.start_date == date)
-    
+        app.logger.info("Processing name query for %s ...", start_date)
+        return cls.query.filter(cls.start_date == start_date)
+
     @classmethod
-    def find_by_end_date(cls, date):
+    def find_by_end_date(cls, end_date):
         """Returns all Promotion with the given end_date
 
         Args:
             end_date (date): the name of the Promotion you want to match
         """
-        app.logger.info("Processing name query for %s ...", date)
-        return cls.query.filter(cls.end_date == date)
+        app.logger.info("Processing name query for %s ...", end_date)
+        return cls.query.filter(cls.end_date == end_date)
 
     @classmethod
-    def find_by_original_end_date(cls, date):
+    def find_by_original_end_date(cls, end_date):
         """Returns all Promotion with the given original_end_date
 
         Args:
             original_end_date (date): the name of the Promotion you want to match
         """
-        app.logger.info("Processing name query for %s ...", date)
-        return cls.query.filter(cls.original_end_date == date)
+        app.logger.info("Processing name query for %s ...", end_date)
+        return cls.query.filter(cls.original_end_date == end_date)
 
     @classmethod
     def find_by_message(cls, message):
