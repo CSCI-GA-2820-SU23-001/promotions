@@ -489,9 +489,11 @@ class TestPromotionModel(unittest.TestCase):
         self.assertRaises(NotFound, Promotion.find_or_404, 0)
 
     def test_cancel(self):
+        """It should test whether a promotion has been cancel successfully"""
         start = date.today() - timedelta(1)
         end = start + timedelta(5)
-        promo = Promotion(name="20% Off", start_date=start, end_date=end, whole_store=True, message="This is a test!", promotion_changes_price=True)
+        promo = Promotion(name="20% Off", start_date=start, end_date=end,
+                          whole_store=True, message="This is a test!", promotion_changes_price=True)
         self.assertTrue(promo.is_active())
         promo.cancel()
         self.assertFalse(promo.is_active())

@@ -18,6 +18,8 @@ from tests.factories import PromoFactory
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
+# pylint: disable=too-many-public-methods
+# All those methods are required for a complete test
 class TestYourResourceServer(TestCase):
     """REST API Server Tests"""
 
@@ -271,24 +273,25 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(len(response.data), 0)
 
     def test_delete_not_found(self):
-        """It should Delete a promotion and return 404 if not found."""
+        """It should Delete a promotion and return 204 if not found."""
         response = self.client.delete('promotions/0')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_cancel(self):
         """It should cancel a promotion by changing its end date to yesterday."""
         test_promo = self._create_promotions(1)[0]
-        response = self.client.get("/promotions/cancel/{}".format(test_promo.id), content_type="application/json")
+        response = self.client.get(f"/promotions/cancel/{test_promo.id}", content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.get_json()['end_date'], date.today().strftime('%Y-%m-%d'))
 
     def test_cancel_not_found(self):
         """It should return 404 when cancelling an unfound promotion."""
-        response = self.client.get("/promotions/cancel/{}".format(0), content_type="application/json")
+        response = self.client.get("/promotions/cancel/0", content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 class TestJustDateExtensions(TestCase):
+    """class for date extensions"""
     def setUp(self):
         """ This runs before each test """
         self.client = app.test_client()
@@ -312,9 +315,9 @@ class TestJustDateExtensions(TestCase):
     def tearDown(self):
         """ This runs after each test """
 
-    def test_extend_date(self): 
+    def test_extend_date(self):
         """ It should respond to a valid end date extension with a 200 status code and the new object. """
-        new_end_date = self.date_extension_end_date + timedelta(days = 10)
+        new_end_date = self.date_extension_end_date + timedelta(days=10)
         id_data = self.date_extension_id
         new_data = {'end_date': new_end_date}
         new_data_string = {k: str(v) for k, v in new_data.items()}
@@ -330,9 +333,9 @@ class TestJustDateExtensions(TestCase):
         self.assertEqual(new_promo['end_date'], new_data_string['end_date'])
         self.assertEqual(new_promo['id'], id_data)
 
-    def test_extend_date_start_date(self): 
+    def test_extend_date_start_date(self):
         """ It should respond to an end date extension where start date > end date with a 400. """
-        new_end_date = self.date_extension_start_date - timedelta(days = 10)
+        new_end_date = self.date_extension_start_date - timedelta(days=10)
         id_data = self.date_extension_id
         new_data = {'end_date': new_end_date}
         new_data_string = {k: str(v) for k, v in new_data.items()}
@@ -344,7 +347,7 @@ class TestJustDateExtensions(TestCase):
             response.status_code, status.HTTP_400_BAD_REQUEST
         )
 
-    def test_extend_date_incorrect_date(self): 
+    def test_extend_date_incorrect_date(self):
         """ It should respond to an end date extension with incorrect date data with a 400. """
         id_data = self.date_extension_id
         new_data_string = {'missing': 'missing'}
@@ -358,7 +361,7 @@ class TestJustDateExtensions(TestCase):
 
     def test_date_extension_not_found(self):
         """ It should respond to a invalid end date extension with no original promotion with a 404 status code. """
-        new_end_date = self.date_extension_end_date + timedelta(days = 10)
+        new_end_date = self.date_extension_end_date + timedelta(days=10)
         id_data = self.date_extension_id + 10
         new_data = {'end_date': new_end_date}
         new_data_string = {k: str(v) for k, v in new_data.items()}

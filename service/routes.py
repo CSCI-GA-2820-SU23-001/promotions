@@ -140,7 +140,7 @@ def delete_promotion(promotion_id):
     app.logger.info("Request to delete a promotion with id %s", promotion_id)
     promo = Promotion.find(promotion_id)
     if not promo:
-        abort(status.HTTP_404_NOT_FOUND, f'Promotion with id {promotion_id} was not found.')
+        return ("Did not find promotions with given ID", status.HTTP_204_NO_CONTENT)
     promo.delete()
     app.logger.info("Promotion with ID [%s] delete complete.", promotion_id)
     return (
@@ -168,6 +168,7 @@ def change_end_date_promotion(promotion_id):
     convert_data_back(data_out)
     app.logger.info("Promotion with ID [%s] end date updated.", promotion_id)
     return jsonify(data_out), status.HTTP_200_OK
+
 
 @app.route("/promotions/cancel/<int:promotion_id>", methods=["GET"])
 def cancel(promotion_id):

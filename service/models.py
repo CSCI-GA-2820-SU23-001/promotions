@@ -189,7 +189,7 @@ class Promotion(db.Model):
                 + str(error)
             ) from error
         return self
-    
+
     def update_end_date(self, data):
         """Updates just the end date of the object
 
@@ -207,14 +207,13 @@ class Promotion(db.Model):
                 raise DataValidationError(
                     f"Start Date {start_date} > End Date: {end_date}"
                 )
-            else:
-                self.end_date = data["end_date"]
+            self.end_date = data["end_date"]
         else:
             app.logger.warning('Tripped in End Date')
             raise DataValidationError(
                 "End date update does not contain end_date: "
             )
-        
+
     def cancel(self):
         """
         Cancels a promotion by setting its end date to today
