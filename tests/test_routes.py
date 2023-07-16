@@ -244,6 +244,7 @@ class TestYourResourceServer(TestCase):
         response = self.client.get("/promotions/cancel/{}".format(0), content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+
 class TestJustDateExtensions(TestCase):
     def setUp(self):
         """ This runs before each test """
@@ -310,4 +311,18 @@ class TestJustDateExtensions(TestCase):
         })
         self.assertEqual(
             response.status_code, status.HTTP_400_BAD_REQUEST
+        )
+
+    def test_date_extension_not_found(self):
+        """ It should respond to a invalid end date extension with no original promotion with a 404 status code. """
+        new_end_date = self.date_extension_end_date + timedelta(days = 10)
+        id_data = self.date_extension_id + 10
+        new_data = {'end_date': new_end_date}
+        new_data_string = {k: str(v) for k, v in new_data.items()}
+        response = self.client.put(f"/promotions/change_end_date/{id_data}", json=new_data_string, headers={
+            'Content-type': 'application/json',
+            'Accept': 'application/json',
+        })
+        self.assertEqual(
+            response.status_code, status.HTTP_404_NOT_FOUND
         )
