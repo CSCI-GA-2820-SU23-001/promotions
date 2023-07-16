@@ -140,7 +140,7 @@ def delete_promotion(promotion_id):
     app.logger.info("Request to delete a promotion with id %s", promotion_id)
     promo = Promotion.find(promotion_id)
     if not promo:
-        abort (
+        return(
             "Did not find promotions with given ID",
             status.HTTP_204_NO_CONTENT
         )

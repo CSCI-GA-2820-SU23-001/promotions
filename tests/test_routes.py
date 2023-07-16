@@ -205,7 +205,7 @@ class TestYourResourceServer(TestCase):
         promotions = self._create_promotions(10)
         test_name = promotions[0].name
         name_promotions = [promotion for promotion in promotions if promotion.name == test_name]
-        response = self.client.get("/promotions", content_type="application/json", query_string="name={}".format(test_name))
+        response = self.client.get("/promotions", content_type="application/json", query_string=f"name={test_name}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(len(data), len(name_promotions))
@@ -217,7 +217,8 @@ class TestYourResourceServer(TestCase):
         promotions = self._create_promotions(10)
         test_message = promotions[0].message
         message_promotions = [promotion for promotion in promotions if promotion.message == test_message]
-        response = self.client.get("/promotions", content_type="application/json", query_string="message={}".format(test_message))
+        response = self.client.get("/promotions", content_type="application/json",
+                                   query_string=f"message={test_message}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(len(data), len(message_promotions))
