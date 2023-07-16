@@ -6,7 +6,7 @@ Test cases can be run with the following:
   coverage report -m
 """
 import logging
-from datetime import timedelta
+from datetime import date, timedelta
 from unittest import TestCase
 from service import app
 from service.models import Promotion, DataValidationError, db
@@ -18,6 +18,8 @@ from tests.factories import PromoFactory
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
+# pylint: disable=too-many-public-methods
+# All those methods are required for a complete test
 class TestYourResourceServer(TestCase):
     """REST API Server Tests"""
 
@@ -274,3 +276,99 @@ class TestYourResourceServer(TestCase):
         """It should Delete a promotion and return 204 if not found."""
         response = self.client.delete('promotions/0')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_cancel(self):
+        """It should cancel a promotion by changing its end date to yesterday."""
+        test_promo = self._create_promotions(1)[0]
+        response = self.client.get(f"/promotions/cancel/{test_promo.id}", content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.get_json()['end_date'], date.today().strftime('%Y-%m-%d'))
+
+    def test_cancel_not_found(self):
+        """It should return 404 when cancelling an unfound promotion."""
+        response = self.client.get("/promotions/cancel/0", content_type="application/json")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class TestJustDateExtensions(TestCase):
+    """class for date extensions"""
+    def setUp(self):
+        """ This runs before each test """
+        self.client = app.test_client()
+        db.session.query(Promotion).delete()  # clean up the last tests
+        db.session.commit()
+
+        promo = PromoFactory()
+        data_orig = promo.serialize()
+        del data_orig['id']   # user is not supposed to send ID, they're supposed to receive it
+        data = {k: str(v) for k, v in data_orig.items()}
+        response = self.client.post("/promotions", json=data, headers={
+                'Content-type': 'application/json',
+                'Accept': 'application/json',
+            }
+        )
+        response_json = response.get_json()
+        self.date_extension_end_date = data_orig['end_date']
+        self.date_extension_start_date = data_orig['start_date']
+        self.date_extension_id = response_json['id']
+
+    def tearDown(self):
+        """ This runs after each test """
+
+    def test_extend_date(self):
+        """ It should respond to a valid end date extension with a 200 status code and the new object. """
+        new_end_date = self.date_extension_end_date + timedelta(days=10)
+        id_data = self.date_extension_id
+        new_data = {'end_date': new_end_date}
+        new_data_string = {k: str(v) for k, v in new_data.items()}
+        response = self.client.put(f"/promotions/change_end_date/{id_data}", json=new_data_string, headers={
+            'Content-type': 'application/json',
+            'Accept': 'application/json',
+        })
+        self.assertEqual(
+            response.status_code, status.HTTP_200_OK
+        )
+        new_promo = response.get_json()
+        logging.debug(new_promo)
+        self.assertEqual(new_promo['end_date'], new_data_string['end_date'])
+        self.assertEqual(new_promo['id'], id_data)
+
+    def test_extend_date_start_date(self):
+        """ It should respond to an end date extension where start date > end date with a 400. """
+        new_end_date = self.date_extension_start_date - timedelta(days=10)
+        id_data = self.date_extension_id
+        new_data = {'end_date': new_end_date}
+        new_data_string = {k: str(v) for k, v in new_data.items()}
+        response = self.client.put(f"/promotions/change_end_date/{id_data}", json=new_data_string, headers={
+            'Content-type': 'application/json',
+            'Accept': 'application/json',
+        })
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST
+        )
+
+    def test_extend_date_incorrect_date(self):
+        """ It should respond to an end date extension with incorrect date data with a 400. """
+        id_data = self.date_extension_id
+        new_data_string = {'missing': 'missing'}
+        response = self.client.put(f"/promotions/change_end_date/{id_data}", json=new_data_string, headers={
+            'Content-type': 'application/json',
+            'Accept': 'application/json',
+        })
+        self.assertEqual(
+            response.status_code, status.HTTP_400_BAD_REQUEST
+        )
+
+    def test_date_extension_not_found(self):
+        """ It should respond to a invalid end date extension with no original promotion with a 404 status code. """
+        new_end_date = self.date_extension_end_date + timedelta(days=10)
+        id_data = self.date_extension_id + 10
+        new_data = {'end_date': new_end_date}
+        new_data_string = {k: str(v) for k, v in new_data.items()}
+        response = self.client.put(f"/promotions/change_end_date/{id_data}", json=new_data_string, headers={
+            'Content-type': 'application/json',
+            'Accept': 'application/json',
+        })
+        self.assertEqual(
+            response.status_code, status.HTTP_404_NOT_FOUND
+        )

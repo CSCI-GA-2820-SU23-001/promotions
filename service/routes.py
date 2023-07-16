@@ -140,10 +140,46 @@ def delete_promotion(promotion_id):
     app.logger.info("Request to delete a promotion with id %s", promotion_id)
     promo = Promotion.find(promotion_id)
     if not promo:
-        return (
-            "Did not find promotions with given ID",
-            status.HTTP_204_NO_CONTENT
-        )
+        return ("Did not find promotions with given ID", status.HTTP_204_NO_CONTENT)
     promo.delete()
     app.logger.info("Promotion with ID [%s] delete complete.", promotion_id)
-    return ("Did not find promotions with given ID", status.HTTP_204_NO_CONTENT)
+    return (
+        "Did not find promotions with given ID",
+        status.HTTP_204_NO_CONTENT
+    )
+
+######################################################################
+#  CHANGE THE END DATE OF A PROMOTION
+######################################################################
+
+
+@app.route("/promotions/change_end_date/<int:promotion_id>", methods=["PUT"])
+def change_end_date_promotion(promotion_id):
+    """ Delete Promotion response """
+    app.logger.info("Request to change end date of a promotion with id %s", promotion_id)
+    promo = Promotion.find(promotion_id)
+    if not promo:
+        abort(status.HTTP_404_NOT_FOUND, f'Promotion with id {promotion_id} was not found.')
+    json_data = request.get_json()
+    convert_data(json_data)
+    promo.update_end_date(json_data)
+    promo.update()
+    data_out = promo.serialize()
+    convert_data_back(data_out)
+    app.logger.info("Promotion with ID [%s] end date updated.", promotion_id)
+    return jsonify(data_out), status.HTTP_200_OK
+
+
+@app.route("/promotions/cancel/<int:promotion_id>", methods=["GET"])
+def cancel(promotion_id):
+    """ Cancel a Promotion """
+    app.logger.info("Request to cancel promotion with id %s", promotion_id)
+    promo = Promotion.find(promotion_id)
+    if not promo:
+        abort(status.HTTP_404_NOT_FOUND, f'Promotion with id {promotion_id} was not found.')
+    promo.cancel()
+    promo.update()
+    data_out = promo.serialize()
+    convert_data_back(data_out)
+    app.logger.info("Promotion with ID [%s] end date updated.", promotion_id)
+    return jsonify(data_out), status.HTTP_200_OK
