@@ -115,8 +115,14 @@ def list_promotions():
     """Returns all of the Promotions"""
     app.logger.info("Request for promotion list")
     promotions = []
-
-    promotions = Promotion.all()
+    message = request.args.get("message")
+    name = request.args.get("name")
+    if message:
+        promotions = Promotion.find_by_message(message)
+    elif name:
+        promotions = Promotion.find_by_name(name)
+    else:
+        promotions = Promotion.all()
 
     results = [promotion.serialize() for promotion in promotions]
     app.logger.info("Returning %d promotions", len(results))
@@ -134,9 +140,9 @@ def delete_promotion(promotion_id):
     app.logger.info("Request to delete a promotion with id %s", promotion_id)
     promo = Promotion.find(promotion_id)
     if not promo:
-        abort(
-            status.HTTP_404_NOT_FOUND,
-            f"Promotion with id {promotion_id} was not found.",
+        abort (
+            "Did not find promotions with given ID",
+            status.HTTP_204_NO_CONTENT
         )
     promo.delete()
     app.logger.info("Promotion with ID [%s] delete complete.", promotion_id)
