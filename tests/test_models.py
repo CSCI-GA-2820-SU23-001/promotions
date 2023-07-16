@@ -6,16 +6,16 @@ Test cases can be run with:
     -vvv --run-coverage
 
 """
-
-
 import os
 import logging
 import unittest
 from datetime import date, timedelta
+
 from werkzeug.exceptions import NotFound
+
 from service.models import Promotion, DataValidationError, db
-from tests.factories import PromoFactory
 from service import app
+from tests.factories import PromoFactory
 
 
 DATABASE_URI = os.getenv(
@@ -27,12 +27,14 @@ DATABASE_URI = os.getenv(
 ######################################################################
 
 
+# pylint: disable=too-many-public-methods
+# All those methods are required for a complete test
 class TestPromotionModel(unittest.TestCase):
-    """ Test Cases for Promotion """
+    """Test Cases for Promotion"""
 
     @classmethod
     def setUpClass(cls):
-        """ This runs once before the entire test suite """
+        """This runs once before the entire test suite"""
         app.config["TESTING"] = True
         app.config["DEBUG"] = False
         app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI
@@ -40,7 +42,7 @@ class TestPromotionModel(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        """ This runs once after the entire test suite """
+        """This runs once after the entire test suite"""
         db.session.close()
 
     def setUp(self):
@@ -49,8 +51,8 @@ class TestPromotionModel(unittest.TestCase):
         db.session.commit()
 
     def tearDown(self):
-        """ This runs after each test """
-        db.session.remove
+        """This runs after each test"""
+        db.session.remove()
 
     ######################################################################
     #  T E S T   C A S E S
@@ -61,7 +63,14 @@ class TestPromotionModel(unittest.TestCase):
         today = date.today()
         tomorrow = today + timedelta(1)
         # flake8: noqa: E501
-        promo = Promotion(name="20% Off", start_date=today, end_date=tomorrow, whole_store=True, message="This is a test!", promotion_changes_price=True)
+        promo = Promotion(
+            name="20% Off",
+            start_date=today,
+            end_date=tomorrow,
+            whole_store=True,
+            message="This is a test!",
+            promotion_changes_price=True,
+        )
         self.assertEqual(str(promo), "<Promotion 20% Off id=[None]>")
         self.assertTrue(promo is not None)
         self.assertEqual(promo.id, None)
@@ -72,7 +81,14 @@ class TestPromotionModel(unittest.TestCase):
         self.assertEqual(promo.whole_store, True)
         self.assertEqual(promo.message, "This is a test!")
         self.assertEqual(promo.promotion_changes_price, True)
-        promo = Promotion(name="20% Off", start_date=today, end_date=tomorrow, whole_store=False, message="This is a test!", promotion_changes_price=False)
+        promo = Promotion(
+            name="20% Off",
+            start_date=today,
+            end_date=tomorrow,
+            whole_store=False,
+            message="This is a test!",
+            promotion_changes_price=False,
+        )
         self.assertEqual(promo.whole_store, False)
         self.assertEqual(promo.promotion_changes_price, False)
 
@@ -83,7 +99,14 @@ class TestPromotionModel(unittest.TestCase):
         promos = Promotion.all()
         self.assertEqual(promos, [])
         self.assertEqual(len(promos), 0)
-        promo = Promotion(name="20% Off", start_date=today, end_date=tomorrow, whole_store=True, message="This is a test!", promotion_changes_price=True)
+        promo = Promotion(
+            name="20% Off",
+            start_date=today,
+            end_date=tomorrow,
+            whole_store=True,
+            message="This is a test!",
+            promotion_changes_price=True,
+        )
         self.assertTrue(promo is not None)
         self.assertEqual(promo.id, None)
         promo.create()
@@ -97,7 +120,7 @@ class TestPromotionModel(unittest.TestCase):
         promo = PromoFactory()
         new_promo = Promotion()
         data = promo.serialize()
-        data['original_end_date'] = '1'
+        data["original_end_date"] = "1"
         logging.debug(data)
         self.assertRaises((DataValidationError), new_promo.deserialize, data)
 
@@ -106,7 +129,7 @@ class TestPromotionModel(unittest.TestCase):
         promo = PromoFactory()
         new_promo = Promotion()
         data = promo.serialize()
-        data['promotion_changes_price'] = '1'
+        data["promotion_changes_price"] = "1"
         logging.debug(data)
         self.assertRaises((DataValidationError), new_promo.deserialize, data)
 
@@ -212,12 +235,18 @@ class TestPromotionModel(unittest.TestCase):
         self.assertEqual(promo.message, data["message"])
         self.assertEqual(promo.promotion_changes_price, data["promotion_changes_price"])
 
-
     def test_deserialize_missing_data(self):
         """It should not deserialize a Promotion with missing data"""
         today = date.today()
         tomorrow = date.today() + timedelta(1)
-        data = {"id": 1, "name": "20% Off", "start_date": today, "end_date": tomorrow, "whole_store": True, "message": "This is a test!"}
+        data = {
+            "id": 1,
+            "name": "20% Off",
+            "start_date": today,
+            "end_date": tomorrow,
+            "whole_store": True,
+            "message": "This is a test!",
+        }
         promo = Promotion()
         self.assertRaises(DataValidationError, promo.deserialize, data)
 
@@ -230,14 +259,28 @@ class TestPromotionModel(unittest.TestCase):
     def test_deserialize_bad_end_date(self):
         """It should not deserialize dictionaries with bad end_date"""
         today = date.today()
-        data = {"id": 1, "name": "20% Off", "start_date": today, "end_date": "string", "whole_store": True, "message": "This is a test!"}
+        data = {
+            "id": 1,
+            "name": "20% Off",
+            "start_date": today,
+            "end_date": "string",
+            "whole_store": True,
+            "message": "This is a test!",
+        }
         promo = Promotion()
         self.assertRaises(DataValidationError, promo.deserialize, data)
 
     def test_deserialize_bad_start_date(self):
         """It should not deserialize dictionaries with bad start_date"""
         today = date.today()
-        data = {"id": 1, "name": "20% Off", "start_date": "wrong", "end_date": today, "whole_store": True, "message": "This is a test!"}
+        data = {
+            "id": 1,
+            "name": "20% Off",
+            "start_date": "wrong",
+            "end_date": today,
+            "whole_store": True,
+            "message": "This is a test!",
+        }
         promo = Promotion()
         self.assertRaises(DataValidationError, promo.deserialize, data)
 
@@ -245,15 +288,30 @@ class TestPromotionModel(unittest.TestCase):
         """It should not deserialize dictionaries with bad whole_store"""
         today = date.today()
         tomorrow = date.today() + timedelta(1)
-        data = {"id": 1, "name": "20% Off", "start_date": today, "end_date": tomorrow, "whole_store": "bad", "message": "This is a test!"}
+        data = {
+            "id": 1,
+            "name": "20% Off",
+            "start_date": today,
+            "end_date": tomorrow,
+            "whole_store": "bad",
+            "message": "This is a test!",
+        }
         promo = Promotion()
         self.assertRaises(DataValidationError, promo.deserialize, data)
-    
+
     def test_deserialize_bad_has_been_extended(self):
         """It should not deserialize dictionaries with bad whole_store"""
         today = date.today()
         tomorrow = date.today() + timedelta(1)
-        data = {"id": 1, "name": "20% Off", "start_date": today, "end_date": tomorrow, "whole_store": True, "message": "This is a test!", "has_been_extended": "bad"}
+        data = {
+            "id": 1,
+            "name": "20% Off",
+            "start_date": today,
+            "end_date": tomorrow,
+            "whole_store": True,
+            "message": "This is a test!",
+            "has_been_extended": "bad",
+        }
         promo = Promotion()
         self.assertRaises(DataValidationError, promo.deserialize, data)
 
@@ -261,7 +319,15 @@ class TestPromotionModel(unittest.TestCase):
         """It should not deserialize dictionaries with bad original_end_date"""
         today = date.today()
         tomorrow = date.today() + timedelta(1)
-        data = {"id": 1, "name": "20% Off", "start_date": today, "end_date": tomorrow, "whole_store": True, "message": "This is a test!", "original_end_date": "bad"}
+        data = {
+            "id": 1,
+            "name": "20% Off",
+            "start_date": today,
+            "end_date": tomorrow,
+            "whole_store": True,
+            "message": "This is a test!",
+            "original_end_date": "bad",
+        }
         promo = Promotion()
         self.assertRaises(DataValidationError, promo.deserialize, data)
 
@@ -269,7 +335,15 @@ class TestPromotionModel(unittest.TestCase):
         """It should not deserialize dictionaries with bad promotion_changes_price"""
         today = date.today()
         tomorrow = date.today() + timedelta(1)
-        data = {"id": 1, "name": "20% Off", "start_date": today, "end_date": tomorrow, "whole_store": True, "message": "This is a test!", "promotion_changes_price": "bad"}
+        data = {
+            "id": 1,
+            "name": "20% Off",
+            "start_date": today,
+            "end_date": tomorrow,
+            "whole_store": True,
+            "message": "This is a test!",
+            "promotion_changes_price": "bad",
+        }
         promo = Promotion()
         self.assertRaises(DataValidationError, promo.deserialize, data)
 
@@ -298,7 +372,9 @@ class TestPromotionModel(unittest.TestCase):
         self.assertEqual(promo.whole_store, promos[1].whole_store)
         self.assertEqual(promo.end_date, promos[1].end_date)
         self.assertEqual(promo.message, promos[1].message)
-        self.assertEqual(promo.promotion_changes_price, promos[1].promotion_changes_price)
+        self.assertEqual(
+            promo.promotion_changes_price, promos[1].promotion_changes_price
+        )
 
     def test_find_by_name(self):
         """It should Find a Promotion by Name"""
@@ -342,7 +418,9 @@ class TestPromotionModel(unittest.TestCase):
         for promo in promos:
             promo.create()
         original_end_date = promos[0].original_end_date
-        count = len([promo for promo in promos if promo.original_end_date == original_end_date])
+        count = len(
+            [promo for promo in promos if promo.original_end_date == original_end_date]
+        )
         found = Promotion.find_by_original_end_date(original_end_date)
         self.assertEqual(found.count(), count)
         for promo in found:
@@ -364,14 +442,28 @@ class TestPromotionModel(unittest.TestCase):
         """It should set a Promotion as active if it was created before or on today's date"""
         today = date.today()
         tomorrow = today + timedelta(1)
-        promo = Promotion(name="20% Off", start_date=today, end_date=tomorrow, whole_store=True, message="This is a test!", promotion_changes_price=True)
+        promo = Promotion(
+            name="20% Off",
+            start_date=today,
+            end_date=tomorrow,
+            whole_store=True,
+            message="This is a test!",
+            promotion_changes_price=True,
+        )
         self.assertTrue(promo.is_active())
 
     def test_is_not_active(self):
         """It should not set a Promotion as active if it was created before or on today's date"""
         today = date.today() + timedelta(1)
         tomorrow = today + timedelta(3)
-        promo = Promotion(name="20% Off", start_date=today, end_date=tomorrow, whole_store=True, message="This is a test!", promotion_changes_price=True)
+        promo = Promotion(
+            name="20% Off",
+            start_date=today,
+            end_date=tomorrow,
+            whole_store=True,
+            message="This is a test!",
+            promotion_changes_price=True,
+        )
         self.assertFalse(promo.is_active())
 
     def test_find_or_404_found(self):
@@ -388,7 +480,9 @@ class TestPromotionModel(unittest.TestCase):
         self.assertEqual(promo.end_date, promos[1].end_date)
         self.assertEqual(promo.whole_store, promos[1].whole_store)
         self.assertEqual(promo.message, promos[1].message)
-        self.assertEqual(promo.promotion_changes_price, promos[1].promotion_changes_price)
+        self.assertEqual(
+            promo.promotion_changes_price, promos[1].promotion_changes_price
+        )
 
     def test_find_or_404_not_found(self):
         """It should return 404 not found"""
