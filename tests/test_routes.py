@@ -304,7 +304,7 @@ class TestYourResourceServer(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["status"], 200)
-        self.assertEqual(data["message"], "Healthy")
+        self.assertEqual(data["message"], "OK")
 
 
 class TestJustDateExtensions(TestCase):
