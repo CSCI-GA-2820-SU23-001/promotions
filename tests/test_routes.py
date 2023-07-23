@@ -207,7 +207,11 @@ class TestYourResourceServer(TestCase):
         promotions = self._create_promotions(10)
         test_name = promotions[0].name
         name_promotions = [promotion for promotion in promotions if promotion.name == test_name]
-        response = self.client.get("/promotions", content_type="application/json", query_string=f"name={test_name}")
+        response = self.client.get(
+            "/promotions",
+            content_type="application/json",
+            query_string=f"name={test_name}",
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(len(data), len(name_promotions))
@@ -218,7 +222,9 @@ class TestYourResourceServer(TestCase):
         """ It should query Promotions by Message """
         promotions = self._create_promotions(10)
         test_message = promotions[0].message
-        message_promotions = [promotion for promotion in promotions if promotion.message == test_message]
+        message_promotions = [
+            promotion for promotion in promotions if promotion.message == test_message
+        ]
         response = self.client.get("/promotions", content_type="application/json",
                                    query_string=f"message={test_message}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -280,7 +286,10 @@ class TestYourResourceServer(TestCase):
     def test_cancel(self):
         """It should cancel a promotion by changing its end date to yesterday."""
         test_promo = self._create_promotions(1)[0]
-        response = self.client.get(f"/promotions/cancel/{test_promo.id}", content_type="application/json")
+        response = self.client.get(
+            f"/promotions/cancel/{test_promo.id}",
+            content_type="application/json"
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.get_json()['end_date'], date.today().strftime('%Y-%m-%d'))
 
@@ -289,11 +298,19 @@ class TestYourResourceServer(TestCase):
         response = self.client.get("/promotions/cancel/0", content_type="application/json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_health(self):
+        """It should be healthy"""
+        resp = self.client.get("/health")
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.get_json()
+        self.assertEqual(data["status"], 200)
+        self.assertEqual(data["message"], "Healthy")
+
 
 class TestJustDateExtensions(TestCase):
     """class for date extensions"""
     def setUp(self):
-        """ This runs before each test """
+        """This runs before each test"""
         self.client = app.test_client()
         db.session.query(Promotion).delete()  # clean up the last tests
         db.session.commit()
@@ -316,15 +333,18 @@ class TestJustDateExtensions(TestCase):
         """ This runs after each test """
 
     def test_extend_date(self):
-        """ It should respond to a valid end date extension with a 200 status code and the new object. """
+        """It should respond to a valid end date extension with status 200 and the new object."""
         new_end_date = self.date_extension_end_date + timedelta(days=10)
         id_data = self.date_extension_id
         new_data = {'end_date': new_end_date}
         new_data_string = {k: str(v) for k, v in new_data.items()}
-        response = self.client.put(f"/promotions/change_end_date/{id_data}", json=new_data_string, headers={
-            'Content-type': 'application/json',
-            'Accept': 'application/json',
-        })
+        response = self.client.put(
+            f"/promotions/change_end_date/{id_data}",
+            json=new_data_string, headers={
+                'Content-type': 'application/json',
+                'Accept': 'application/json',
+            }
+        )
         self.assertEqual(
             response.status_code, status.HTTP_200_OK
         )
@@ -339,10 +359,13 @@ class TestJustDateExtensions(TestCase):
         id_data = self.date_extension_id
         new_data = {'end_date': new_end_date}
         new_data_string = {k: str(v) for k, v in new_data.items()}
-        response = self.client.put(f"/promotions/change_end_date/{id_data}", json=new_data_string, headers={
-            'Content-type': 'application/json',
-            'Accept': 'application/json',
-        })
+        response = self.client.put(
+            f"/promotions/change_end_date/{id_data}",
+            json=new_data_string, headers={
+                'Content-type': 'application/json',
+                'Accept': 'application/json',
+            }
+        )
         self.assertEqual(
             response.status_code, status.HTTP_400_BAD_REQUEST
         )
@@ -351,24 +374,30 @@ class TestJustDateExtensions(TestCase):
         """ It should respond to an end date extension with incorrect date data with a 400. """
         id_data = self.date_extension_id
         new_data_string = {'missing': 'missing'}
-        response = self.client.put(f"/promotions/change_end_date/{id_data}", json=new_data_string, headers={
-            'Content-type': 'application/json',
-            'Accept': 'application/json',
-        })
+        response = self.client.put(
+            f"/promotions/change_end_date/{id_data}",
+            json=new_data_string, headers={
+                'Content-type': 'application/json',
+                'Accept': 'application/json',
+            }
+        )
         self.assertEqual(
             response.status_code, status.HTTP_400_BAD_REQUEST
         )
 
     def test_date_extension_not_found(self):
-        """ It should respond to a invalid end date extension with no original promotion with a 404 status code. """
+        """It should respond to a invalid end date extension with no promotion and status 404."""
         new_end_date = self.date_extension_end_date + timedelta(days=10)
         id_data = self.date_extension_id + 10
         new_data = {'end_date': new_end_date}
         new_data_string = {k: str(v) for k, v in new_data.items()}
-        response = self.client.put(f"/promotions/change_end_date/{id_data}", json=new_data_string, headers={
-            'Content-type': 'application/json',
-            'Accept': 'application/json',
-        })
+        response = self.client.put(
+            f"/promotions/change_end_date/{id_data}",
+            json=new_data_string, headers={
+                'Content-type': 'application/json',
+                'Accept': 'application/json',
+            }
+        )
         self.assertEqual(
             response.status_code, status.HTTP_404_NOT_FOUND
         )
