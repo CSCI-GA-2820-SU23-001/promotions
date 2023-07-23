@@ -192,4 +192,4 @@ def cancel(promotion_id):
 @app.route("/health")
 def health():
     """Let them know our heart is still beating"""
-    return make_response(jsonify(status=200, message="Healthy"), status.HTTP_200_OK)
+    return make_response(jsonify(status=200, message="OK"), status.HTTP_200_OK)
