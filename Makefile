@@ -54,11 +54,18 @@ cluster-rm: ## Remove a K3D Kubernetes cluster
 .PHONY: login
 login: ## Login to IBM Cloud using yur api key
 	$(info Logging into IBM Cloud cluster $(CLUSTER)...)
-	ibmcloud login -a cloud.ibm.com -g Default -r us-south --apikey @~/apikey.json
+	ibmcloud login -a cloud.ibm.com -g Default -r us-south --apikey @~/.bluemix/apikey.json
 	ibmcloud cr login
 	ibmcloud ks cluster config --cluster $(CLUSTER)
 	ibmcloud ks workers --cluster $(CLUSTER)
 	kubectl cluster-info
+
+.PHONY: namespace
+namespace: ## Create the namespace assigned to the SPACE env variable
+	$(info Creatng the $(SPACE) namespace...)
+	kubectl create namespace $(SPACE) 
+	kubectl get secret all-icr-io -n default -o yaml | sed 's/default/$(SPACE)/g' | kubectl create -n $(SPACE) -f -
+	kubectl config set-context --current --namespace $(SPACE)
 
 .PHONY: deploy
 depoy: ## Deploy the service on local Kubernetes
