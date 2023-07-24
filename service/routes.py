@@ -183,3 +183,13 @@ def cancel(promotion_id):
     convert_data_back(data_out)
     app.logger.info("Promotion with ID [%s] end date updated.", promotion_id)
     return jsonify(data_out), status.HTTP_200_OK
+
+######################################################################
+#  HEALTH POINT
+######################################################################
+
+
+@app.route("/health")
+def health():
+    """Let them know our heart is still beating"""
+    return make_response(jsonify(status=200, message="OK"), status.HTTP_200_OK)
