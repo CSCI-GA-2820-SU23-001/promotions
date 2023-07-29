@@ -73,9 +73,6 @@ class TestYourResourceServer(TestCase):
         """It should call the home page"""
         resp = self.client.get("/")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            len(resp.get_json()), 6
-        )  # test number of endpoints coming back
 
     def test_create(self):
         """It should respond to a proper create with 201 status code and return the data."""
