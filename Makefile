@@ -1,5 +1,13 @@
 # These can be overidden with env vars.
 CLUSTER ?= nyu-devops
+NAMESPACE ?= promotions-sum23
+REGISTRY ?= us.icr.io
+IMAGE_NAME ?= promotions
+IMAGE_TAG ?= 1.0
+IMAGE ?= $(REGISTRY)/$(NAMESPACE)/$(IMAGE_NAME):$(IMAGE_TAG)
+# PLATFORM ?= "linux/amd64,linux/arm64"
+PLATFORM ?= "linux/amd64"
+
 
 .PHONY: help
 help: ## Display this help
@@ -60,6 +68,12 @@ login: ## Login to IBM Cloud using yur api key
 	ibmcloud ks workers --cluster $(CLUSTER)
 	kubectl cluster-info
 
+.PHONY: push
+image-push: ## Push to a Docker image registry
+	$(info Logging into IBM Cloud cluster $(CLUSTER)...)
+	ibmcloud cr login
+	docker push $(IMAGE)
+
 .PHONY: namespace
 namespace: ## Create the namespace assigned to the SPACE env variable
 	$(info Creatng the $(SPACE) namespace...)
@@ -71,4 +85,9 @@ namespace: ## Create the namespace assigned to the SPACE env variable
 depoy: ## Deploy the service on local Kubernetes
 	$(info Deploying service locally...)
 	kubectl apply -f deploy/
+
+.PHONY: build
+build:	## Build all of the project Docker images
+	$(info Building $(IMAGE) for $(PLATFORM)...)
+	docker buildx build --file .devcontainer/Dockerfile  --pull --platform=$(PLATFORM) --tag $(IMAGE) --load .
 
