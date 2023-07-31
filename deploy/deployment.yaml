@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: promotions-sum23
+  name: promotions
   labels:
-    app: promotions-sum23
+    app: promotions
 spec:
   replicas: 2
   strategy:
@@ -13,17 +13,17 @@ spec:
       maxUnavailable: 50%
   selector:
     matchLabels:
-      app: promotions-sum23
+      app: promotions
   template:
     metadata:
       labels:
-        app: promotions-sum23
+        app: promotions
     spec:
       imagePullSecrets:
       - name: all-icr-io
       restartPolicy: Always
       containers:
-      - name: promotions-sum23
+      - name: promotions
         image: us.icr.io/promotions-sum23/promotions:1.0
         imagePullPolicy: IfNotPresent
         ports:
