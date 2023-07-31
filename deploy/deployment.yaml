@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: //promotions-namespace
+  name: promotions-sum23
   labels:
-    app: //promotions-namespace
+    app: promotions-sum23
 spec:
   replicas: 2
   strategy:
@@ -13,18 +13,18 @@ spec:
       maxUnavailable: 50%
   selector:
     matchLabels:
-      app: //promotions-namespace
+      app: promotions-sum23
   template:
     metadata:
       labels:
-        app: //promotions-namespace
+        app: promotions-sum23
     spec:
       imagePullSecrets:
       - name: all-icr-io
       restartPolicy: Always
       containers:
       - name: //promotions-namespace
-        image: us.icr.io/nyu-devops/{//promotions-namespace}:1.0
+        image: us.icr.io/nyu-devops/promotions-sum23:1.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
