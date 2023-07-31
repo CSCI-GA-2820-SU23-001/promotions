@@ -23,8 +23,8 @@ spec:
       - name: all-icr-io
       restartPolicy: Always
       containers:
-      - name: //promotions-namespace
-        image: us.icr.io/nyu-devops/promotions-sum23:1.0
+      - name: promotions-sum23
+        image: us.icr.io/promotions-sum23/promotions:1.0
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
