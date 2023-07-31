@@ -21,16 +21,7 @@ from . import app
 @app.route("/")
 def index():
     """Root URL response"""
-    res = {
-        "/": "The index endpoint. Lists all the other endpoints.",
-        "/create": "POST endpoint for creating promotions.",
-        "/read": "GET endpoint for reading a promotion with an ID.",
-        "/update": "PUT endpoint for updating a promotion with an ID.",
-        "/list": "GET endpoint for listing all existing promotions.",
-        "/delete": "DELETE endpoint for deleting an existing promotion with an ID.",
-    }
-    return make_response(jsonify(res), status.HTTP_200_OK)
-
+    return app.send_static_file('index.html')
 
 ######################################################################
 #  R E S T   A P I   E N D P O I N T S
