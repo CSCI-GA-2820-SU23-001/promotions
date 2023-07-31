@@ -26,15 +26,15 @@ def step_impl(context):
         context.resp = requests.delete(f"{rest_endpoint}/{promo['id']}")
         assert(context.resp.status_code == HTTP_204_NO_CONTENT)
 
-    # load the database with new promotions
-#     for row in context.table:
-#         payload = {
-#             "name": row['name'],
-#             "start_date": row['start_date'],
-#             "end_date": row['end_date'],
-#             "whole_store": row['whole_store'] in ['True', 'False'],
-#             "message": row['message'],
-#             "promotion_changes_price": row['promotion_changes_price'] in ['True', 'False']
-#         }
-#         context.resp = requests.post(rest_endpoint, json=payload)
-#         assert(context.resp.status_code == HTTP_201_CREATED)
+    load the database with new promotions
+    for row in context.table:
+        payload = {
+            "name": row['name'],
+            "start_date": row['start_date'],
+            "end_date": row['end_date'],
+            "whole_store": row['whole_store'] in ['True', 'False'],
+            "message": row['message'],
+            "promotion_changes_price": row['promotion_changes_price'] in ['True', 'False']
+        }
+        context.resp = requests.post(rest_endpoint, json=payload)
+        assert(context.resp.status_code == HTTP_201_CREATED)
