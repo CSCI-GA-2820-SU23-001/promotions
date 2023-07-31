@@ -26,7 +26,7 @@ def step_impl(context):
         context.resp = requests.delete(f"{rest_endpoint}/{promo['id']}")
         assert(context.resp.status_code == HTTP_204_NO_CONTENT)
 
-    load the database with new promotions
+    # load the database with new promotions
     for row in context.table:
         payload = {
             "name": row['name'],
