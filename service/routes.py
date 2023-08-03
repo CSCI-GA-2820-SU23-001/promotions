@@ -12,7 +12,6 @@ from service.helpers import convert_data, convert_data_back
 
 # Import Flask application
 from . import app
-import collections
 
 ######################################################################
 # GET INDEX
