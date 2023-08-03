@@ -7,6 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/x-icon" href="static/images/newapp-icon.png">
     <link rel="stylesheet" href="static/css/cerulean_bootstrap.min.css">
+    <script type="text/javascript" src = "static/js/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src = "static/js/bootstrap.min.js"></script>
+
+    <!-- YOUR REST API -->
+    <script type="text/javascript" src="static/js/rest_api.js"></script>
+
   </head>
   <body>
     <div class="container">
@@ -15,11 +21,71 @@
       </div>
     </div> <!-- container -->
 
-  <script type="text/javascript" src = "static/js/jquery-3.6.0.min.js"></script>
-  <script type="text/javascript" src = "static/js/bootstrap.min.js"></script>
+    <div class="form-horizontal">
+      <!-- Flash Message -->
+      <div class="table-responsive">
+        <table class="table">
+          <tr><td>Status:</td><td><span id="flash_message"></span></td></tr>
+        </table>
+      </div>
+        
+      <!-- NAME -->
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="promotion_name">Name:</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="promotion_name" placeholder="Enter name for Promotion">
+        </div>
+      </div>
 
-  <!-- YOUR REST API -->
-  <script type="text/javascript" src="static/js/rest_api.js"></script>
+      <!-- Message -->
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="promotion_category">Message:</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="promotion_message" placeholder="Enter Message for Promotion">
+        </div>
+      </div>
 
+      <!-- START DATE -->
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="promotion_start_date">Start Date:</label>
+        <div class="col-sm-10">
+          <input type="date" class="form-control" id="promotion_start_date" placeholder="2020-04-01">
+        </div>
+      </div>
+
+      <!-- END DATE -->
+      <div class="form-group">
+        <label class="control-label col-sm-2" for="promotion_start_date">End Date:</label>
+        <div class="col-sm-10">
+          <input type="date" class="form-control" id="promotion_start_date" placeholder="2020-04-01">
+        </div>
+      </div>
+
+
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" class="btn btn-primary" id="search-btn">Search</button>
+          </div>
+        </div>
+    </div>
+      <!-- Search Results -->
+      <div class="table-responsive col-md-12" id="search_results">
+        <table class="table table-striped">
+          <thead>
+          <tr>
+            <th class="col-md-1">ID</th>
+            <th class="col-md-4">Name</th>
+            <th class="col-md-4">Start Date</th>
+            <th class="col-md-3">End Date</th>
+            <th class="col-md-3">Whole Store</th>
+            <th class="col-md-3">Has Been Extended</th>
+            <th class="col-md-3">Original End Date</th>
+            <th class="col-md-3">Message</th>
+            <th class="col-md-3">Promotion Changes Price</th>
+          </tr>
+          </thead>
+        </table>
+      </div>
+  
   </body>
 </html>
