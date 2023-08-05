@@ -42,7 +42,7 @@ class TestYourResourceServer(TestCase):
         """This runs after each test"""
 
     def _create_promotions(self, count):
-        """Factory method to create pets in bulk"""
+        """Factory method to create promotions in bulk"""
         promotions = []
         for _ in range(count):
             test_promotion = PromoFactory()

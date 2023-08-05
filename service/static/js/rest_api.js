@@ -5,16 +5,16 @@ $(function () {
     }
 
     function update_form_data(res) {
-        $("#pet_id").val(res.id);
-        $("#pet_name").val(res.name);
-        $("#pet_category").val(res.category);
+        $("#promotion_id").val(res.id);
+        $("#promotion_name").val(res.name);
+        $("#promotion_category").val(res.category);
         if (res.available == true) {
-            $("#pet_available").val("true");
+            $("#promotion_available").val("true");
         } else {
-            $("#pet_available").val("false");
+            $("#promotion_available").val("false");
         }
-        $("#pet_gender").val(res.gender);
-        $("#pet_birthday").val(res.birthday);
+        $("#promotion_gender").val(res.gender);
+        $("#promotion_birthday").val(res.birthday);
     }
 
     $("#search-btn").click(function () {
