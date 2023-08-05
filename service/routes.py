@@ -23,6 +23,7 @@ def index():
     """Root URL response"""
     return app.send_static_file('index.html')
 
+
 ######################################################################
 #  R E S T   A P I   E N D P O I N T S
 ######################################################################
@@ -108,10 +109,16 @@ def list_promotions():
     promotions = []
     message = request.args.get("message")
     name = request.args.get("name")
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
     if message:
         promotions = Promotion.find_by_message(message)
     elif name:
         promotions = Promotion.find_by_name(name)
+    elif start_date:
+        promotions = Promotion.find_by_start_date(start_date)
+    elif end_date:
+        promotions = Promotion.find_by_end_date(end_date)
     else:
         promotions = Promotion.all()
 
