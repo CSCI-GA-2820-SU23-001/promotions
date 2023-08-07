@@ -103,4 +103,29 @@ $(function () {
         });
 
     });
+
+    $("#cancel-btn").click(function () {
+
+        let id = $("#promotion_id").val();
+
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "GET",
+            url: `/promotions/cancel/${id}`,
+            contentType: "application/json",
+            data: ''
+        })
+
+        ajax.done(function(res){
+            console.log("cance", res);
+
+            flash_message(`Promotion deleted!`)
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
+        });
+
+    });    
 })
