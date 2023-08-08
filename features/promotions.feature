@@ -6,7 +6,7 @@ Feature: The promotion service back-end
 Background:
  Given the following promotions
         | name       | start_date | end_date | message | whole_store | promotion_changes_price | has_been_extended |
-        | promo1 | 2023-08-20 | 2023-10-10 | message one | True | True | False |
+        | promo1 | 2023-08-01 | 2023-12-10 | message one | True | True | False |
 
 
 Scenario: The server is running
@@ -21,3 +21,9 @@ Scenario: Query promotions
     Then I should see the message "Success"
     And I should see "promo1" in the results
     And I should not see "leo" in the results
+
+Scenario: Cancel a promotion
+    When I visit the "home page"
+    And I set the "ID" to an existing id
+    And I press the "Cancel" button
+    Then I should see the message "Promotion deleted!"
