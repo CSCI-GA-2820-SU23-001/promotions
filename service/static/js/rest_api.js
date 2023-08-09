@@ -1,4 +1,6 @@
 $(function () {
+
+    // Update the form with data from the response
     function update_form_data(res) {
         $("#promotion_id").val(res.id);
         $("#promotion_name").val(res.name);
@@ -34,10 +36,15 @@ $(function () {
         $("#promotion_changes_price").val("");
     }
     
+    // Update flash message area
     function flash_message(message) {
         $("#flash_message").empty();
         $("#flash_message").append(message);
     }
+
+    // ****************************************
+    // List Promotions
+    // ****************************************
 
     $("#list-btn").click(function () {
         $("#flash_message").empty();
@@ -80,6 +87,10 @@ $(function () {
             flash_message("Success")
         });
     });
+
+    // ****************************************
+    // Search for a Promotion
+    // ****************************************
 
     $("#search-btn").click(function () {
 
@@ -168,6 +179,10 @@ $(function () {
 
     });
 
+    // ****************************************
+    // Cancel a Promotion
+    // ****************************************
+
     $("#cancel-btn").click(function () {
 
         let id = $("#promotion_id").val();
@@ -182,14 +197,41 @@ $(function () {
         })
 
         ajax.done(function(res){
-            console.log("cance", res);
+            console.log("cancel", res);
 
-            flash_message(`Promotion deleted!`)
+            flash_message(`Promotion canceled!`)
         });
 
         ajax.fail(function(res){
             flash_message(res.responseJSON.message)
         });
 
-    });    
+    });  
+
+    // ****************************************
+    // Delete a Promotion
+    // ****************************************  
+
+    $("#delete-btn").click(function(){
+
+        let id = $("#promotion_id").val();
+        
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "DELETE",
+            url: `/promotions/${id}`,
+            contentType: "application/json",
+            data: '',
+        })
+        ajax.done(function(res){
+            clear_form_data()
+            flash_message("Promotion has been Deleted!")
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
+        });
+
+    });
 })
