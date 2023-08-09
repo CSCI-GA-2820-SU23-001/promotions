@@ -38,6 +38,7 @@ def create_promotion():
     """Create Promotion Response"""
     app.logger.warning("Create Route Called")
     promo = Promotion()
+    app.logger.warning(promo)
     json_data = request.get_json()
     convert_data(json_data)
     promo.deserialize(json_data)

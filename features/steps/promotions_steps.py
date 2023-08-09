@@ -20,6 +20,9 @@ HTTP_200_OK = 200
 HTTP_201_CREATED = 201
 HTTP_204_NO_CONTENT = 204
 
+ID_PREFIX = 'promotion_'
+
+
 @given('the following promotions')
 def step_impl(context):
     """ Delete all Promotions and load new ones """
@@ -114,3 +117,71 @@ def step_impl(context, name):
 def step_impl(context, name):
     element = context.driver.find_element(By.ID, 'search_results')
     assert(name not in element.text)
+
+@when('I set the "{element_name}" to "{text_string}"')
+def step_impl(context, element_name, text_string):
+    element_id = ID_PREFIX + element_name.lower().replace(' ', '_')
+    element = context.driver.find_element(By.ID, element_id)
+    element.clear()
+    element.send_keys(text_string)
+
+@when('I select "{text}" in the "{element_name}" dropdown')
+def step_impl(context, text, element_name):
+    element_id = ID_PREFIX + element_name.lower().replace(' ', '_')
+    element = Select(context.driver.find_element(By.ID, element_id))
+    element.select_by_visible_text(text)
+
+@then('I should see "{text}" in the "{element_name}" dropdown')
+def step_impl(context, text, element_name):
+    element_id = ID_PREFIX + element_name.lower().replace(' ', '_')
+    element = Select(context.driver.find_element(By.ID, element_id))
+    assert(element.first_selected_option.text == text)
+
+@then('the "{element_name}" field should be empty')
+def step_impl(context, element_name):
+    element_id = ID_PREFIX + element_name.lower().replace(' ', '_')
+    element = context.driver.find_element(By.ID, element_id)
+    assert(element.get_attribute('value') == u'')
+
+@then('I should see "{text_string}" in the "{element_name}" field')
+def step_impl(context, text_string, element_name):
+    element_id = ID_PREFIX + element_name.lower().replace(' ', '_')
+    found = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.text_to_be_present_in_element_value(
+            (By.ID, element_id),
+            text_string
+        )
+    )
+    assert(found)
+
+@when('I change "{element_name}" to "{text_string}"')
+def step_impl(context, element_name, text_string):
+    element_id = ID_PREFIX + element_name.lower().replace(' ', '_')
+    element = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.presence_of_element_located((By.ID, element_id))
+    )
+    element.clear()
+    element.send_keys(text_string)
+
+
+
+##################################################################
+# These two function simulate copy and paste
+##################################################################
+@when('I copy the "{element_name}" field')
+def step_impl(context, element_name):
+    element_id = ID_PREFIX + element_name.lower().replace(' ', '_')
+    element = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.presence_of_element_located((By.ID, element_id))
+    )
+    context.clipboard = element.get_attribute('value')
+    logging.info('Clipboard contains: %s', context.clipboard)
+
+@when('I paste the "{element_name}" field')
+def step_impl(context, element_name):
+    element_id = ID_PREFIX + element_name.lower().replace(' ', '_')
+    element = WebDriverWait(context.driver, context.wait_seconds).until(
+        expected_conditions.presence_of_element_located((By.ID, element_id))
+    )
+    element.clear()
+    element.send_keys(context.clipboard)
