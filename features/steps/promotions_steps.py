@@ -9,6 +9,7 @@ For information on Waiting until elements are present in the HTML see:
 import os
 import requests
 from behave import given, when, then
+from compare import expect
 
 import logging
 from selenium.webdriver.common.by import By
@@ -115,3 +116,9 @@ def step_impl(context, name):
 def step_impl(context, name):
     element = context.driver.find_element(By.ID, 'search_results')
     assert(name not in element.text)
+
+@then('the promotions table should be populated')
+def step_impl(context):
+    search_table_promotions = context.driver.find_elements(By.XPATH, '//*[@id="search_results"]/table/tbody/*')
+    expect(len(search_table_promotions) > 0).to_be(True)
+
