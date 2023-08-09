@@ -33,5 +33,10 @@ Scenario: Cancel a promotion
     When I visit the "home page"
     And I set the "ID" to an existing id
     And I press the "Cancel" button
-    Then I should see the message "Promotion deleted!"
+    Then I should see the message "Promotion canceled!"
 
+Scenario: Delete a promotion
+    When I visit the "home page"
+    And I set the "ID" to an existing id
+    And I press the "Delete" button
+    Then I should see the message "Promotion has been Deleted!"
