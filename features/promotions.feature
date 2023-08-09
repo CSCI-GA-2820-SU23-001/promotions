@@ -6,14 +6,13 @@ Feature: The promotion service back-end
 Background:
  Given the following promotions
         | name       | start_date | end_date | message | whole_store | promotion_changes_price | has_been_extended |
-        | promo1 | 2023-08-20 | 2023-10-10 | message one | True | True | False |
+        | promo1 | 2023-08-01 | 2023-12-10 | message one | True | True | False |
 
 
 Scenario: The server is running
     When I visit the "home page"
     Then I should see "Welcome to the Promotions Service"
     And I should not see "404 Not Found"
-
 
 Scenario: Query promotions
     When I visit the "home page"
@@ -44,3 +43,21 @@ Scenario: Create a Promotion
     And I should see "new promotion" in the results
     And I should see "Fri, 20 Aug 2027 00:00:00 GMT" in the results
     And I should see "Thu, 10 Aug 2023 00:00:00 GMT" in the results
+
+Scenario: List all Promotions
+    When I visit the "home Page"
+    And I press the "List" button
+    Then I should see the message "Success"
+    And the promotions table should be populated
+
+Scenario: Cancel a promotion
+    When I visit the "home page"
+    And I set the "ID" to an existing id
+    And I press the "Cancel" button
+    Then I should see the message "Promotion canceled!"
+
+Scenario: Delete a promotion
+    When I visit the "home page"
+    And I set the "ID" to an existing id
+    And I press the "Delete" button
+    Then I should see the message "Promotion has been Deleted!"

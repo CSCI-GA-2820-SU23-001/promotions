@@ -1,9 +1,12 @@
 $(function () {
+
+    // Update flash message area
     function flash_message(message) {
         $("#flash_message").empty();
         $("#flash_message").append(message);
     }
 
+    // Update the form with data from the response
     function update_form_data(res) {
         $("#promotion_id").val(res.id);
         $("#promotion_name").val(res.name);
@@ -14,7 +17,7 @@ $(function () {
             $("#promotion_whole_store").val("False");
         }
         if (res.promotion_changes_price == true) {
-            $("#promotion_promotion_changes_pricee").val("True");
+            $("#promotion_promotion_changes_price").val("True");
         } else {
             $("#promotion_promotion_changes_price").val("False");
         }
@@ -108,6 +111,57 @@ $(function () {
             flash_message(res.responseJSON.message)
         });
     });
+    
+
+    // ****************************************
+    // List Promotions
+    // ****************************************
+
+    $("#list-btn").click(function () {
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "GET",
+            url: "/promotions",
+            contentType: "application/json",
+	        data: ''
+        });
+        ajax.done(function(res){
+            console.log(res)
+            $("#search_results").empty();
+            let table = '<table class="table table-striped" cellpadding="10">'
+            table += '<thead><tr>'
+            table += '<th class="col-md-2">ID</th>'
+            table += '<th class="col-md-2">Name</th>'
+            table += '<th class="col-md-2">Start Date</th>'
+            table += '<th class="col-md-2">End Date</th>'
+            table += '<th class="col-md-2">Whole Store</th>'
+            table += '<th class="col-md-2">Has Been Extended</th>'
+            table += '<th class="col-md-2">Original End Date</th>'
+            table += '<th class="col-md-2">Message</th>'
+            table += '<th class="col-md-2">Promotion Changes Price</th>'
+            table += '</tr></thead><tbody>'
+
+            let firstPromo = "";
+            for(let i = 0; i < res.length; i++) {
+                let promo = res[i];
+                table +=  `<tr id="row_${i}"><td>${promo.id}</td><td>${promo.name}</td><td>${promo.start_date}</td><td>${promo.end_date}</td><td>${promo.whole_store}</td><td>${promo.has_been_extended}</td><td>${promo.original_end_date}</td><td>${promo.message}</td><td>${promo.promotion_changes_price}</td></tr>`;
+                if (i == 0) {
+                    firstPromo = promo;
+                }
+            }
+            table += '</tbody></table>';
+            $("#search_results").append(table);
+	        if (firstPromo != "") {
+                update_form_data(firstPromo)
+            }
+            flash_message("Success")
+        });
+    });
+
+    // ****************************************
+    // Search for a Promotion
+    // ****************************************
 
     $("#search-btn").click(function () {
 
@@ -145,7 +199,7 @@ $(function () {
         }
 
         $("#flash_message").empty();
-
+        console.log("HELLO");
         let ajax = $.ajax({
             type: "GET",
             url: `/promotions?${queryString}`,
@@ -154,6 +208,7 @@ $(function () {
         })
 
         ajax.done(function(res){
+            console.log("DONE")
             $("#search_results").empty();
             let table = '<table class="table table-striped" cellpadding="10">'
             table += '<thead><tr>'
@@ -194,4 +249,60 @@ $(function () {
         });
 
     });
-})
+
+    // ****************************************
+    // Cancel a Promotion
+    // ****************************************
+
+    $("#cancel-btn").click(function () {
+
+        let id = $("#promotion_id").val();
+
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "GET",
+            url: `/promotions/cancel/${id}`,
+            contentType: "application/json",
+            data: ''
+        })
+
+        ajax.done(function(res){
+            console.log("cancel", res);
+
+            flash_message(`Promotion canceled!`)
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
+        });
+
+    });  
+
+    // ****************************************
+    // Delete a Promotion
+    // ****************************************  
+
+    $("#delete-btn").click(function(){
+
+        let id = $("#promotion_id").val();
+        
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "DELETE",
+            url: `/promotions/${id}`,
+            contentType: "application/json",
+            data: '',
+        })
+        ajax.done(function(res){
+            clear_form_data()
+            flash_message("Promotion has been Deleted!")
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
+        });
+
+    });
+});

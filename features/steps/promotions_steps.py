@@ -9,6 +9,7 @@ For information on Waiting until elements are present in the HTML see:
 import os
 import requests
 from behave import given, when, then
+from compare import expect
 
 import logging
 from selenium.webdriver.common.by import By
@@ -19,6 +20,7 @@ from selenium.webdriver.support import expected_conditions
 HTTP_200_OK = 200
 HTTP_201_CREATED = 201
 HTTP_204_NO_CONTENT = 204
+ID = None
 
 ID_PREFIX = 'promotion_'
 
@@ -48,6 +50,7 @@ def step_impl(context):
             "original_end_date": row['end_date'],
         }
         context.resp = requests.post(rest_endpoint, json=payload)
+        context.resp_id = context.resp.json()['id']
         assert(context.resp.status_code == HTTP_201_CREATED)
 
 
@@ -59,10 +62,6 @@ def step_impl(context):
     )
   context.resp = requests.get(context.base_url + '/')
   assert context.resp.status_code == 200
-
-def step_impl(context):
- raise NotImplementedError('STEP: Given the server is started')
-
 
 @when(u'I visit the "home page"')
 def step_impl(context):
@@ -92,6 +91,9 @@ def step_impl(context, button):
     button_id = button.lower() + '-btn'
     context.driver.find_element(By.ID, button_id).click()
 
+@when(u'I set the "ID" to an existing id')
+def step_impl(context):
+    context.driver.find_element(By.ID, "promotion_id").send_keys(context.resp_id)
 
 @then('I should see the message "{message}"')
 def step_impl(context, message):
@@ -185,3 +187,8 @@ def step_impl(context, element_name):
     )
     element.clear()
     element.send_keys(context.clipboard)
+@then('the promotions table should be populated')
+def step_impl(context):
+    search_table_promotions = context.driver.find_elements(By.XPATH, '//*[@id="search_results"]/table/tbody/*')
+    expect(len(search_table_promotions) > 0).to_be(True)
+
