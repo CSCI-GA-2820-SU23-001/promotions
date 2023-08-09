@@ -101,7 +101,7 @@ $(function () {
             contentType: "application/json",
             data: JSON.stringify(data),
         });
-
+        console.log(JSON.stringify(data))
         ajax.done(function(res){
             update_form_data(res)
             flash_message("Success")
@@ -333,5 +333,50 @@ $(function () {
             flash_message(res.responseJSON.message)
         });
 
+    });
+
+    // ****************************************
+    // Update a Promotion
+    // ****************************************
+
+    $('#update-btn').click(function(){
+        let id = $("#promotion_id").val()
+        let name = $("#promotion_name").val();
+        let message = $("#promotion_message").val();
+        let start_date = $("#promotion_start_date").val();
+        let end_date = $("#promotion_end_date").val();
+        let whole_store = $("#promotion_whole_store").val();
+        let promotion_changes_price = $("#promotion_promotion_changes_price").val();
+        
+
+        let data = {
+            "name": name,
+            "message": message,
+            "start_date": start_date,
+            "end_date": end_date,
+            "whole_store": whole_store,
+            "promotion_changes_price": promotion_changes_price,
+            "has_been_extended": "False",
+            "original_end_date": end_date
+        };
+
+        // console.log(JSON.stringify(data))
+        $("#flash_message").empty();
+        let ajax = $.ajax({
+            type: "PUT",
+            url: `/promotions/${id}`,
+            contentType: "application/json",
+            data: JSON.stringify(data)
+        });
+
+        ajax.done(function(res){
+            update_form_data(res)
+            console.log("Updated")
+            flash_message("Promotion updated!")
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
+        });
     });
 });
