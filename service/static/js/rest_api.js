@@ -111,7 +111,36 @@ $(function () {
             flash_message(res.responseJSON.message)
         });
     });
-    
+	
+    // ****************************************
+    // Retrieve a Promotion
+    // ****************************************
+
+    $("#retrieve-btn").click(function () {
+
+        let promotion_id = $("#promotion_id").val();
+
+        $("#flash_message").empty();
+
+        let ajax = $.ajax({
+            type: "GET",
+            url: `/promotions/${promotion_id}`,
+            contentType: "application/json",
+            data: ''
+        })
+
+        ajax.done(function(res){
+            //alert(res.toSource())
+            update_form_data(res)
+            flash_message("Success")
+        });
+
+        ajax.fail(function(res){
+            clear_form_data()
+            flash_message(res.responseJSON.message)
+        });
+
+    });
 
     // ****************************************
     // List Promotions
@@ -228,7 +257,7 @@ $(function () {
             let firstPromo = "";
             for(let i = 0; i < res.length; i++) {
                 let promo = res[i];
-                table +=  `<tr id="row_${i}"><td>${promo.id}</td><td>${promo.name}</td><td>${promo.start_date}</td><td>${promo.end_date}</td><td>${promo.whole_store}</td><td>${promo.has_been_extended}</td><td>${promo.original_end_date}</td><td>${promo.message}</td><td>${promo.changes_price}</td></tr>`;
+                table +=  `<tr id="row_${i}"><td>${promo.id}</td><td>${promo.name}</td><td>${promo.start_date}</td><td>${promo.end_date}</td><td>${promo.whole_store}</td><td>${promo.has_been_extended}</td><td>${promo.original_end_date}</td><td>${promo.message}</td><td>${promo.promotion_changes_price}</td></tr>`;
                 if (i == 0) {
                     firstPromo = promo;
                 }

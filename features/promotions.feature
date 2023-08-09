@@ -21,6 +21,26 @@ Scenario: Query promotions
     And I should see "promo1" in the results
     And I should not see "leo" in the results
 
+Scenario: Retrieve a Promotion
+    When I visit the "home page"
+    And I set the "Name" to "newPromo"
+    And I set the "Message" to "test promotion"
+    And I set the "Start Date" to "05-12-2023"
+    And I set the "End Date" to "10-20-2023"
+    And I press the "Create" button
+    Then I should see the message "Success"
+    When I copy the "Id" field
+    And I press the "Clear" button
+    Then the "Id" field should be empty
+    And the "Message" field should be empty
+    And the "Start Date" field should be empty
+    And the "End date" field should be empty
+    When I paste the "Id" field
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    And I should see "newPromo" in the "Name" field
+    And I should see "test promotion" in the "Message" field
+
 Scenario: Create a Promotion
     When I visit the "home page"
     And I set the "Name" to "promo2"
