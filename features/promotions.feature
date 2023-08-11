@@ -54,7 +54,7 @@ Scenario: Create a Promotion
     Then the "id" field should be empty
     And the "Message" field should be empty
     And the "Start Date" field should be empty
-    And the "end date" field should be empty
+    And the "End date" field should be empty
     When I paste the "id" field
     And I set the "Name" to "promo2"
     And I press the "Search" button
@@ -81,3 +81,13 @@ Scenario: Delete a promotion
     And I set the "ID" to an existing id
     And I press the "Delete" button
     Then I should see the message "Promotion has been Deleted!"
+
+Scenario: Update a promotion
+    When I visit the "home page"
+    And I set the "ID" to an existing id
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    When I set the "Message" to "test-promo"
+    And I press the "Update" button
+    Then I should see the message "Promotion updated!"
+    And I should see "test-promo" in the "Message" field
