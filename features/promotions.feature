@@ -7,6 +7,8 @@ Background:
  Given the following promotions
         | name       | start_date | end_date | message | whole_store | promotion_changes_price | has_been_extended |
         | promo1 | 2023-08-01 | 2023-12-10 | message one | True | True | False |
+        | promo2 | 2023-08-01 | 2023-09-02 | new promo | True | True | False |
+        | promo3 | 2023-05-16 | 2023-10-10 | test promo | True | True | False |
 
 
 Scenario: The server is running
@@ -91,3 +93,18 @@ Scenario: Update a promotion
     And I press the "Update" button
     Then I should see the message "Promotion updated!"
     And I should see "test-promo" in the "Message" field
+
+Scenario: Change end date for a promotion
+    When I visit the "home page"
+    And I set the "ID" to an existing id
+    And I press the "Retrieve" button
+    Then I should see the message "Success"
+    When I set the "End Date" to "01-10-2028"
+    And I press the "ChangeEndDate" button
+    Then I should see the message "Promotion end date changed!"
+    When I copy the "Name" field
+    And I press the "Clear" button
+    Then the "id" field should be empty
+    When I paste the "Name" field
+    And I press the "Search" button
+    Then I should see "Mon, 10 Jan 2028 00:00:00 GMT" in the results
