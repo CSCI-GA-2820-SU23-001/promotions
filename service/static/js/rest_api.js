@@ -392,6 +392,7 @@ $(function () {
         let end_date = $("#promotion_end_date").val();
         let whole_store = $("#promotion_whole_store").val();
         let promotion_changes_price = $("#promotion_promotion_changes_price").val();
+	let original_end_date = $("#promotion_original_end_date").val();
 
         let data = {
             "name": name,
@@ -401,7 +402,7 @@ $(function () {
             "whole_store": whole_store,
             "promotion_changes_price": promotion_changes_price,
             "has_been_extended": "True",
-            "original_end_date": end_date
+            "original_end_date": original_end_date
         };
 
         // console.log(JSON.stringify(data))
