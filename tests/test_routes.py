@@ -14,12 +14,18 @@ from service.common import status  # HTTP Status Codes
 from service.helpers import convert_data, convert_data_back
 from tests.factories import PromoFactory
 
+BASE_URL = "/promotions"
+#  try to change to /api/promotions but got error for some test case
+
+CONTENT_TYPE_JSON = "application/json"
 
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
 # pylint: disable=too-many-public-methods
 # All those methods are required for a complete test
+
+
 class TestYourResourceServer(TestCase):
     """REST API Server Tests"""
 
@@ -48,11 +54,11 @@ class TestYourResourceServer(TestCase):
             test_promotion = PromoFactory()
             data = {k: str(v) for k, v in test_promotion.serialize().items()}
             response = self.client.post(
-                "/promotions",
+                BASE_URL,
                 json=data,
                 headers={
-                    "Content-type": "application/json",
-                    "Accept": "application/json",
+                    "Content-type": CONTENT_TYPE_JSON,
+                    "Accept": CONTENT_TYPE_JSON,
                 },
             )
             self.assertEqual(
@@ -84,11 +90,11 @@ class TestYourResourceServer(TestCase):
         data = {k: str(v) for k, v in data_orig.items()}
         app.logger.debug("Happy Path: Test Passing to Create: %s", data)
         resp = self.client.post(
-            "/promotions",
+            BASE_URL,
             json=data,
             headers={
-                "Content-type": "application/json",
-                "Accept": "application/json",
+                "Content-type": CONTENT_TYPE_JSON,
+                "Accept": CONTENT_TYPE_JSON,
             },
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
@@ -114,11 +120,11 @@ class TestYourResourceServer(TestCase):
             new_data = data.copy()
             del new_data[field]
             resp = self.client.post(
-                "/promotions",
+                BASE_URL,
                 json=new_data,
                 headers={
-                    "Content-type": "application/json",
-                    "Accept": "application/json",
+                    "Content-type": CONTENT_TYPE_JSON,
+                    "Accept": CONTENT_TYPE_JSON,
                 },
             )
             app.logger.debug(
@@ -136,11 +142,11 @@ class TestYourResourceServer(TestCase):
         data["end_date"] = data["start_date"] - timedelta(days=2)
         data = {k: str(v) for k, v in data.items()}
         resp = self.client.post(
-            "/promotions",
+            BASE_URL,
             json=data,
             headers={
-                "Content-type": "application/json",
-                "Accept": "application/json",
+                "Content-type": CONTENT_TYPE_JSON,
+                "Accept": CONTENT_TYPE_JSON,
             },
         )
         app.logger.debug(
@@ -172,7 +178,7 @@ class TestYourResourceServer(TestCase):
         # get the id of a promotion
         test_promotion = self._create_promotions(1)[0]
         response = self.client.get(
-            f"/promotions/{test_promotion.id}", content_type="application/json"
+            f"{BASE_URL}/{test_promotion.id}", content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
@@ -180,7 +186,7 @@ class TestYourResourceServer(TestCase):
 
     def test_get_promotion_not_found(self):
         """It should not Get a Promotion thats not found"""
-        response = self.client.get("/promotions/0")
+        response = self.client.get(f"{BASE_URL}/0")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         data = response.get_json()
         logging.debug("Response data = %s", data)
@@ -194,7 +200,7 @@ class TestYourResourceServer(TestCase):
     def test_list_promotion(self):
         """It should Get a list of Promotions"""
         self._create_promotions(5)
-        response = self.client.get("/promotions")
+        response = self.client.get(BASE_URL)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
         self.assertEqual(len(data), 5)
@@ -205,8 +211,8 @@ class TestYourResourceServer(TestCase):
         test_name = promotions[0].name
         name_promotions = [promotion for promotion in promotions if promotion.name == test_name]
         response = self.client.get(
-            "/promotions",
-            content_type="application/json",
+            BASE_URL,
+            content_type=CONTENT_TYPE_JSON,
             query_string=f"name={test_name}",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -222,7 +228,7 @@ class TestYourResourceServer(TestCase):
         message_promotions = [
             promotion for promotion in promotions if promotion.message == test_message
         ]
-        response = self.client.get("/promotions", content_type="application/json",
+        response = self.client.get(BASE_URL, content_type=CONTENT_TYPE_JSON,
                                    query_string=f"message={test_message}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.get_json()
@@ -235,11 +241,11 @@ class TestYourResourceServer(TestCase):
         test_promo = PromoFactory()
         data = {k: str(v) for k, v in test_promo.serialize().items()}
         response = self.client.post(
-            "/promotions",
+            BASE_URL,
             json=data,
             headers={
-                "Content-type": "application/json",
-                "Accept": "application/json",
+                "Content-type": CONTENT_TYPE_JSON,
+                "Accept": CONTENT_TYPE_JSON,
             },
         )
         self.assertEqual(
@@ -252,11 +258,11 @@ class TestYourResourceServer(TestCase):
         new_promo["name"] = "testupdate"
         test_id = str(new_promo["id"])
         response = self.client.put(
-            "/promotions/" + test_id,
+            BASE_URL + "/" + test_id,
             json=new_promo,
             headers={
-                "Content-type": "application/json",
-                "Accept": "application/json",
+                "Content-type": CONTENT_TYPE_JSON,
+                "Accept": CONTENT_TYPE_JSON,
             },
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -265,7 +271,7 @@ class TestYourResourceServer(TestCase):
 
     def test_update_not_found(self):
         """It should respond to a invalid update with a 404 status code."""
-        response = self.client.put("/promotions/0")
+        response = self.client.put("{BASE_URL}/0")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_delete(self):
@@ -284,15 +290,15 @@ class TestYourResourceServer(TestCase):
         """It should cancel a promotion by changing its end date to yesterday."""
         test_promo = self._create_promotions(1)[0]
         response = self.client.get(
-            f"/promotions/cancel/{test_promo.id}",
-            content_type="application/json"
+            f"{BASE_URL}/cancel/{test_promo.id}",
+            content_type=CONTENT_TYPE_JSON
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.get_json()['end_date'], date.today().strftime('%Y-%m-%d'))
 
     def test_cancel_not_found(self):
         """It should return 404 when cancelling an unfound promotion."""
-        response = self.client.get("/promotions/cancel/0", content_type="application/json")
+        response = self.client.get(f"{BASE_URL}/cancel/0", content_type=CONTENT_TYPE_JSON)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_health(self):
@@ -316,9 +322,9 @@ class TestJustDateExtensions(TestCase):
         data_orig = promo.serialize()
         del data_orig['id']   # user is not supposed to send ID, they're supposed to receive it
         data = {k: str(v) for k, v in data_orig.items()}
-        response = self.client.post("/promotions", json=data, headers={
-                'Content-type': 'application/json',
-                'Accept': 'application/json',
+        response = self.client.post(BASE_URL, json=data, headers={
+                'Content-type': CONTENT_TYPE_JSON,
+                'Accept': CONTENT_TYPE_JSON,
             }
         )
         response_json = response.get_json()
@@ -336,10 +342,11 @@ class TestJustDateExtensions(TestCase):
         new_data = {'end_date': new_end_date}
         new_data_string = {k: str(v) for k, v in new_data.items()}
         response = self.client.put(
-            f"/promotions/change_end_date/{id_data}",
-            json=new_data_string, headers={
-                'Content-type': 'application/json',
-                'Accept': 'application/json',
+            f"{BASE_URL}/change_end_date/{id_data}",
+            json=new_data_string,
+            headers={
+                'Content-type': CONTENT_TYPE_JSON,
+                'Accept': CONTENT_TYPE_JSON,
             }
         )
         self.assertEqual(
@@ -357,10 +364,10 @@ class TestJustDateExtensions(TestCase):
         new_data = {'end_date': new_end_date}
         new_data_string = {k: str(v) for k, v in new_data.items()}
         response = self.client.put(
-            f"/promotions/change_end_date/{id_data}",
+            f"{BASE_URL}/change_end_date/{id_data}",
             json=new_data_string, headers={
-                'Content-type': 'application/json',
-                'Accept': 'application/json',
+                'Content-type': CONTENT_TYPE_JSON,
+                'Accept': CONTENT_TYPE_JSON,
             }
         )
         self.assertEqual(
@@ -372,10 +379,10 @@ class TestJustDateExtensions(TestCase):
         id_data = self.date_extension_id
         new_data_string = {'missing': 'missing'}
         response = self.client.put(
-            f"/promotions/change_end_date/{id_data}",
+            f"{BASE_URL}/change_end_date/{id_data}",
             json=new_data_string, headers={
-                'Content-type': 'application/json',
-                'Accept': 'application/json',
+                'Content-type': CONTENT_TYPE_JSON,
+                'Accept': CONTENT_TYPE_JSON,
             }
         )
         self.assertEqual(
@@ -389,10 +396,10 @@ class TestJustDateExtensions(TestCase):
         new_data = {'end_date': new_end_date}
         new_data_string = {k: str(v) for k, v in new_data.items()}
         response = self.client.put(
-            f"/promotions/change_end_date/{id_data}",
+            f"{BASE_URL}/change_end_date/{id_data}",
             json=new_data_string, headers={
-                'Content-type': 'application/json',
-                'Accept': 'application/json',
+                'Content-type': CONTENT_TYPE_JSON,
+                'Accept': CONTENT_TYPE_JSON,
             }
         )
         self.assertEqual(
