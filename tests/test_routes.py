@@ -14,7 +14,7 @@ from service.common import status  # HTTP Status Codes
 from service.helpers import convert_data, convert_data_back
 from tests.factories import PromoFactory
 
-BASE_URL = "/promotions" 
+BASE_URL = "/promotions"
 #  try to change to /api/promotions but got error for some test case
 
 CONTENT_TYPE_JSON = "application/json"
@@ -24,6 +24,8 @@ CONTENT_TYPE_JSON = "application/json"
 ######################################################################
 # pylint: disable=too-many-public-methods
 # All those methods are required for a complete test
+
+
 class TestYourResourceServer(TestCase):
     """REST API Server Tests"""
 
@@ -256,7 +258,7 @@ class TestYourResourceServer(TestCase):
         new_promo["name"] = "testupdate"
         test_id = str(new_promo["id"])
         response = self.client.put(
-            BASE_URL+ "/" + test_id,
+            BASE_URL + "/" + test_id,
             json=new_promo,
             headers={
                 "Content-type": CONTENT_TYPE_JSON,
@@ -341,7 +343,7 @@ class TestJustDateExtensions(TestCase):
         new_data_string = {k: str(v) for k, v in new_data.items()}
         response = self.client.put(
             f"{BASE_URL}/change_end_date/{id_data}",
-            json=new_data_string, 
+            json=new_data_string,
             headers={
                 'Content-type': CONTENT_TYPE_JSON,
                 'Accept': CONTENT_TYPE_JSON,
