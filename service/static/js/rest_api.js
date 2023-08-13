@@ -379,4 +379,48 @@ $(function () {
             flash_message(res.responseJSON.message)
         });
     });
+
+    // ****************************************
+    // Change End Date for a Promotion
+    // ****************************************
+
+    $('#changeenddate-btn').click(function(){
+        let id = $("#promotion_id").val()
+        let name = $("#promotion_name").val();
+        let message = $("#promotion_message").val();
+        let start_date = $("#promotion_start_date").val();
+        let end_date = $("#promotion_end_date").val();
+        let whole_store = $("#promotion_whole_store").val();
+        let promotion_changes_price = $("#promotion_promotion_changes_price").val();
+
+        let data = {
+            "name": name,
+            "message": message,
+            "start_date": start_date,
+            "end_date": end_date,
+            "whole_store": whole_store,
+            "promotion_changes_price": promotion_changes_price,
+            "has_been_extended": "True",
+            "original_end_date": end_date
+        };
+
+        // console.log(JSON.stringify(data))
+        $("#flash_message").empty();
+        let ajax = $.ajax({
+            type: "PUT",
+            url: `/promotions/change_end_date/${id}`,
+            contentType: "application/json",
+            data: JSON.stringify(data)
+        });
+
+        ajax.done(function(res){
+            update_form_data(res)
+            console.log("changeEndDate", res);
+            flash_message("Promotion end date changed!")
+        });
+
+        ajax.fail(function(res){
+            flash_message(res.responseJSON.message)
+        });
+    });
 });
