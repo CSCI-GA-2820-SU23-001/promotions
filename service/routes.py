@@ -6,12 +6,14 @@ This service allows administrators to set and update promotions on our ecommerce
 The service has the 6 following routes: Create, Read, Update, Delete, List and the root.
 """
 from flask import jsonify, request, make_response, abort
+from flask_restx import fields, reqparse, inputs
 from service.common import status  # HTTP Status Codes
 from service.models import Promotion  # Import Promotion Model
 from service.helpers import convert_data, convert_data_back
 
+
 # Import Flask application
-from . import app
+from . import app, api
 
 ######################################################################
 # GET INDEX
@@ -21,7 +23,67 @@ from . import app
 @app.route("/")
 def index():
     """Root URL response"""
-    return app.send_static_file('index.html')
+    return app.send_static_file("index.html")
+
+
+# Define the model so that the docs reflect what can be sent
+create_model = api.model(
+    "Promotion",
+    {
+        "name": fields.String(required=True, description="The name of the Promotion"),
+        "start_date": fields.Date(
+            required=True, description="The start date of Promotion"
+        ),
+        "end_date": fields.Date(required=True, description="The end date of Promotion"),
+        "whole_store": fields.Boolean(
+            required=True,
+            description="Whether the promotion can be apply in whole store",
+        ),
+        "has_been_extended": fields.Boolean(
+            required=True, description="Whether the promotion has been extended"
+        ),
+        "original_end_date": fields.Date(
+            required=True, description="The original end date of promotion"
+        ),
+        "message": fields.String(
+            required=True, description="Additional message about this promotion"
+        ),
+        "promotion_changes_price": fields.Boolean(
+            required=True,
+            description="Whether this promotion will change the price of things in the store",
+        ),
+    },
+)
+
+promotion_model = api.inherit(
+    "PromotionModel",
+    create_model,
+    {
+        "id": fields.String(
+            readOnly=True, description="The unique id assigned internally by service"
+        ),
+    },
+)
+
+# query string arguments
+promotions_args = reqparse.RequestParser()
+promotions_args.add_argument(
+    "name", type=str, location="args", required=False, help="List Promotions by name"
+)
+promotions_args.add_argument(
+    "message",
+    type=str,
+    location="args",
+    required=False,
+    help="List Promotions by message",
+)
+promotions_args.add_argument(
+    "start_date",
+    type=inputs.date,
+    location="args",
+    required=False,
+    help="List Promotions by start date",
+)
 
 
 ######################################################################
@@ -141,10 +203,8 @@ def delete_promotion(promotion_id):
         return ("Did not find promotions with given ID", status.HTTP_204_NO_CONTENT)
     promo.delete()
     app.logger.info("Promotion with ID [%s] delete complete.", promotion_id)
-    return (
-        "Did not find promotions with given ID",
-        status.HTTP_204_NO_CONTENT
-    )
+    return ("Did not find promotions with given ID", status.HTTP_204_NO_CONTENT)
+
 
 ######################################################################
 #  CHANGE THE END DATE OF A PROMOTION
@@ -153,11 +213,16 @@ def delete_promotion(promotion_id):
 
 @app.route("/promotions/change_end_date/<int:promotion_id>", methods=["PUT"])
 def change_end_date_promotion(promotion_id):
-    """ Delete Promotion response """
-    app.logger.info("Request to change end date of a promotion with id %s", promotion_id)
+    """Delete Promotion response"""
+    app.logger.info(
+        "Request to change end date of a promotion with id %s", promotion_id
+    )
     promo = Promotion.find(promotion_id)
     if not promo:
-        abort(status.HTTP_404_NOT_FOUND, f'Promotion with id {promotion_id} was not found.')
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Promotion with id {promotion_id} was not found.",
+        )
     json_data = request.get_json()
     convert_data(json_data)
     promo.update_end_date(json_data)
@@ -170,17 +235,21 @@ def change_end_date_promotion(promotion_id):
 
 @app.route("/promotions/cancel/<int:promotion_id>", methods=["GET"])
 def cancel(promotion_id):
-    """ Cancel a Promotion """
+    """Cancel a Promotion"""
     app.logger.info("Request to cancel promotion with id %s", promotion_id)
     promo = Promotion.find(promotion_id)
     if not promo:
-        abort(status.HTTP_404_NOT_FOUND, f'Promotion with id {promotion_id} was not found.')
+        abort(
+            status.HTTP_404_NOT_FOUND,
+            f"Promotion with id {promotion_id} was not found.",
+        )
     promo.cancel()
     promo.update()
     data_out = promo.serialize()
     convert_data_back(data_out)
     app.logger.info("Promotion with ID [%s] end date updated.", promotion_id)
     return jsonify(data_out), status.HTTP_200_OK
+
 
 ######################################################################
 #  HEALTH POINT
