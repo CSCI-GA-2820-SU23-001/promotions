@@ -14,7 +14,7 @@ from service.common import status  # HTTP Status Codes
 from service.helpers import convert_data, convert_data_back
 from tests.factories import PromoFactory
 
-BASE_URL = "/promotions"
+BASE_URL = "/api/promotions"
 #  try to change to /api/promotions but got error for some test case
 
 CONTENT_TYPE_JSON = "application/json"
@@ -194,7 +194,7 @@ class TestYourResourceServer(TestCase):
 
     def test_get_promotion_with_method_not_supported(self):
         """It should not Read a Promotion with wrong method"""
-        resp = self.client.post('promotions/0')
+        resp = self.client.post(f'{BASE_URL}/0')
         self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_list_promotion(self):
@@ -277,13 +277,13 @@ class TestYourResourceServer(TestCase):
     def test_delete(self):
         """It should Delete a promotion"""
         test_promo = self._create_promotions(1)[0]
-        response = self.client.delete(f"promotions/{test_promo.id}")
+        response = self.client.delete(f"{BASE_URL}/{test_promo.id}")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(len(response.data), 0)
 
     def test_delete_not_found(self):
         """It should Delete a promotion and return 204 if not found."""
-        response = self.client.delete('promotions/0')
+        response = self.client.delete(f'{BASE_URL}/0')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_cancel(self):

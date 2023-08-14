@@ -15,6 +15,8 @@ from service.helpers import convert_data, convert_data_back
 # Import Flask application
 from . import app, api
 
+BASE_URL = "/api/promotions"
+
 ######################################################################
 # GET INDEX
 ######################################################################
@@ -107,32 +109,8 @@ class PromotionResource(Resource):
     Allows the manipulation of a single Pet
     GET /promotion{id} - Returns a Promotion with the id
     PUT /promotion{id} - Update a Promotion with the id
-    POST /promotion{id} - Create a Promotion
     DELETE /promotion{id} -  Deletes a Promotion with the id
     """
-
-    ######################################################################
-    #  CREATE A PROMOTION
-    ######################################################################
-    @api.doc("create_promotion")
-    @api.expect(create_model)
-    def post(self):
-        """Create Promotion Response"""
-        app.logger.warning("Create Route Called")
-        promo = Promotion()
-        json_data = request.get_json()
-        convert_data(json_data)
-        promo.deserialize(json_data)
-        promo.create()
-        data_out = promo.serialize()
-        convert_data_back(data_out)
-        resource_id = data_out["id"]
-        data_out["resource_url"] = f"/promotions/{resource_id}"
-        return (
-            jsonify(data_out),
-            status.HTTP_201_CREATED,
-        )
-
 
     ######################################################################
     # READ A PROMOTION
@@ -152,7 +130,7 @@ class PromotionResource(Resource):
             )
 
         app.logger.info("Returning promotion: %s", promotion.name)
-        return jsonify(promotion.serialize()), status.HTTP_200_OK
+        return promotion.serialize(), status.HTTP_200_OK
 
 
     ######################################################################
@@ -180,7 +158,7 @@ class PromotionResource(Resource):
         data_out = promo.serialize()
         convert_data_back(data_out)
         app.logger.info("Promotion with ID [%s] updated.", promotion_id)
-        return jsonify(data_out), status.HTTP_200_OK
+        return data_out, status.HTTP_200_OK
     
     ###########################################v###########################
     #  DELETE A PROMOTION
@@ -201,7 +179,30 @@ class PromotionResource(Resource):
 
 @api.route("/promotions", strict_slashes = False)
 class PromotionCollection(Resource):
-    """Handles all interactions with collections of promotions"""
+    """Handles all interactions with collections of promotions, including creation"""
+
+    ######################################################################
+    #  CREATE A PROMOTION
+    ######################################################################
+    @api.doc("create_promotion")
+    @api.expect(create_model)
+    def post(self):
+        """Create Promotion Response"""
+        app.logger.warning("Create Route Called")
+        promo = Promotion()
+        json_data = request.get_json()
+        convert_data(json_data)
+        promo.deserialize(json_data)
+        promo.create()
+        data_out = promo.serialize()
+        convert_data_back(data_out)
+        resource_id = data_out["id"]
+        data_out["resource_url"] = f"{BASE_URL}/{resource_id}"
+        return (
+            data_out,
+            status.HTTP_201_CREATED,
+        )
+
 
     ######################################################################
     # LIST ALL PROMOTIONS
@@ -230,7 +231,7 @@ class PromotionCollection(Resource):
 
         results = [promotion.serialize() for promotion in promotions]
         app.logger.info("Returning %d promotions", len(results))
-        return jsonify(results), status.HTTP_200_OK
+        return results, status.HTTP_200_OK
 
 @api.route("/promotions/change_end_date/<int:promotion_id>")
 class ChangeEndDate(Resource):
@@ -260,7 +261,7 @@ class ChangeEndDate(Resource):
         data_out = promo.serialize()
         convert_data_back(data_out)
         app.logger.info("Promotion with ID [%s] end date updated.", promotion_id)
-        return jsonify(data_out), status.HTTP_200_OK
+        return data_out, status.HTTP_200_OK
 
 @api.route("/promotions/cancel/<int:promotion_id>")
 class Cancel(Resource):
@@ -286,7 +287,7 @@ class Cancel(Resource):
         data_out = promo.serialize()
         convert_data_back(data_out)
         app.logger.info("Promotion with ID [%s] end date updated.", promotion_id)
-        return jsonify(data_out), status.HTTP_200_OK
+        return data_out, status.HTTP_200_OK
 
 
 ######################################################################
