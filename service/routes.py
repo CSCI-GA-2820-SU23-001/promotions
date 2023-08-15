@@ -194,7 +194,7 @@ class PromotionCollection(Resource):
         json_data = request.get_json()
         print(convert_data(json_data))
         promo.deserialize(json_data)
-        promo.create()           
+        promo.create()
         data_out = promo.serialize()
         convert_data_back(data_out)
         resource_id = data_out["id"]
