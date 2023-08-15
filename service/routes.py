@@ -100,6 +100,7 @@ change_end_date_model = api.model(
 #  R E S T   A P I   E N D P O I N T S
 ######################################################################
 
+
 @api.route("/promotions/<promotion_id>")
 @api.param("promotion_id", "The Promotion identifier")
 class PromotionResource(Resource):
@@ -116,7 +117,7 @@ class PromotionResource(Resource):
     # READ A PROMOTION
     ######################################################################
 
-    @api.doc('read_promotion')
+    @api.doc("read_promotion")
     @api.response(404, "Pet not found")
     @api.marshal_with(promotion_model)
     def get(self, promotion_id):
@@ -131,7 +132,6 @@ class PromotionResource(Resource):
 
         app.logger.info("Returning promotion: %s", promotion.name)
         return promotion.serialize(), status.HTTP_200_OK
-
 
     ######################################################################
     #  UPDATE A PROMOTION
@@ -159,8 +159,8 @@ class PromotionResource(Resource):
         convert_data_back(data_out)
         app.logger.info("Promotion with ID [%s] updated.", promotion_id)
         return data_out, status.HTTP_200_OK
-    
-    ###########################################v###########################
+
+    ######################################################################
     #  DELETE A PROMOTION
     ######################################################################
 
@@ -177,7 +177,7 @@ class PromotionResource(Resource):
         return ("Did not find promotions with given ID", status.HTTP_204_NO_CONTENT)
 
 
-@api.route("/promotions", strict_slashes = False)
+@api.route("/promotions", strict_slashes=False)
 class PromotionCollection(Resource):
     """Handles all interactions with collections of promotions, including creation"""
 
@@ -202,7 +202,6 @@ class PromotionCollection(Resource):
             data_out,
             status.HTTP_201_CREATED,
         )
-
 
     ######################################################################
     # LIST ALL PROMOTIONS
@@ -233,6 +232,7 @@ class PromotionCollection(Resource):
         app.logger.info("Returning %d promotions", len(results))
         return results, status.HTTP_200_OK
 
+
 @api.route("/promotions/change_end_date/<int:promotion_id>")
 class ChangeEndDate(Resource):
     """End date actions on a promotion"""
@@ -240,7 +240,7 @@ class ChangeEndDate(Resource):
     ######################################################################
     #  CHANGE THE END DATE OF A PROMOTION
     ######################################################################
-    @api.doc('change_end_date')
+    @api.doc("change_end_date")
     @api.response(404, "Promotion not found")
     @api.expect(change_end_date_model)
     def put(self, promotion_id):
@@ -263,6 +263,7 @@ class ChangeEndDate(Resource):
         app.logger.info("Promotion with ID [%s] end date updated.", promotion_id)
         return data_out, status.HTTP_200_OK
 
+
 @api.route("/promotions/cancel/<int:promotion_id>")
 class Cancel(Resource):
     """Handle all cancel interactions with a promotion."""
@@ -270,7 +271,7 @@ class Cancel(Resource):
     ######################################################################
     #  CANCEL A PROMOTION
     ######################################################################
-    @api.doc('cancel_promotion')
+    @api.doc("cancel_promotion")
     @api.response(404, "Promotion not found")
     @api.marshal_with(promotion_model)
     def get(self, promotion_id):
