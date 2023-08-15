@@ -5,7 +5,7 @@ from os import getenv
 from selenium import webdriver
 
 WAIT_SECONDS = int(getenv('WAIT_SECONDS', '60'))
-BASE_URL = getenv('BASE_URL', 'http://localhost:8080/api')
+BASE_URL = getenv('BASE_URL', 'http://localhost:8080')
 DRIVER = getenv('DRIVER', 'chrome').lower()
 
 
@@ -20,6 +20,7 @@ def before_all(context):
         context.driver = get_chrome()
     context.driver.implicitly_wait(context.wait_seconds)
     context.config.setup_logging()
+    print(context.base_url)
 
 
 def after_all(context):

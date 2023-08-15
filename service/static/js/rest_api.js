@@ -97,7 +97,7 @@ $(function () {
         
         let ajax = $.ajax({
             type: "POST",
-            url: "/promotions",
+            url: "/api/promotions",
             contentType: "application/json",
             data: JSON.stringify(data),
         });
@@ -124,7 +124,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/promotions/${promotion_id}`,
+            url: `/api/promotions/${promotion_id}`,
             contentType: "application/json",
             data: ''
         })
@@ -151,7 +151,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "GET",
-            url: "/promotions",
+            url: "/api/promotions",
             contentType: "application/json",
 	        data: ''
         });
@@ -231,7 +231,7 @@ $(function () {
         console.log("HELLO");
         let ajax = $.ajax({
             type: "GET",
-            url: `/promotions?${queryString}`,
+            url: `/api/promotions?${queryString}`,
             contentType: "application/json",
             data: ''
         })
@@ -291,7 +291,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "GET",
-            url: `/promotions/cancel/${id}`,
+            url: `/api/promotions/cancel/${id}`,
             contentType: "application/json",
             data: ''
         })
@@ -320,7 +320,7 @@ $(function () {
 
         let ajax = $.ajax({
             type: "DELETE",
-            url: `/promotions/${id}`,
+            url: `/api/promotions/${id}`,
             contentType: "application/json",
             data: '',
         })
@@ -364,7 +364,7 @@ $(function () {
         $("#flash_message").empty();
         let ajax = $.ajax({
             type: "PUT",
-            url: `/promotions/${id}`,
+            url: `/api/promotions/${id}`,
             contentType: "application/json",
             data: JSON.stringify(data)
         });
@@ -409,7 +409,7 @@ $(function () {
         $("#flash_message").empty();
         let ajax = $.ajax({
             type: "PUT",
-            url: `/promotions/change_end_date/${id}`,
+            url: `/api/promotions/change_end_date/${id}`,
             contentType: "application/json",
             data: JSON.stringify(data)
         });
