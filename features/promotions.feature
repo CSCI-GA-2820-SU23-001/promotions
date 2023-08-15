@@ -63,8 +63,8 @@ Scenario: Create a Promotion
     Then I should see the message "Success"
     And I should see "promo2" in the results
     And I should see "new promotion" in the results
-    And I should see "Fri, 20 Aug 2027 00:00:00 GMT" in the results
-    And I should see "Thu, 10 Aug 2023 00:00:00 GMT" in the results
+    And I should see "2023-08-10" in the results
+    And I should see "2027-08-20" in the results
 
 Scenario: List all Promotions
     When I visit the "home Page"
@@ -107,4 +107,4 @@ Scenario: Change end date for a promotion
     Then the "id" field should be empty
     When I paste the "Name" field
     And I press the "Search" button
-    Then I should see "Mon, 10 Jan 2028 00:00:00 GMT" in the results
+    Then I should see "2028-01-10" in the results
