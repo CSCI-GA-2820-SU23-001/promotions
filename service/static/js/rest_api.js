@@ -108,7 +108,7 @@ $(function () {
         });
 
         ajax.fail(function(res){
-            flash_message(`${res.responseJSON.error} ${res.responseJSON.message})
+            flash_message(`${res.responseJSON.error} ${res.responseJSON.message}`)
         });
     });
 	
