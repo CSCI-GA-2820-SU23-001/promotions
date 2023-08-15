@@ -20,6 +20,7 @@ def before_all(context):
         context.driver = get_chrome()
     context.driver.implicitly_wait(context.wait_seconds)
     context.config.setup_logging()
+    print(context.base_url)
 
 
 def after_all(context):
