@@ -5,6 +5,7 @@ This service allows administrators to set and update promotions on our ecommerce
 
 The service has the 6 following routes: Create, Read, Update, Delete, List and the root.
 """
+from datetime import date
 from flask import jsonify, request, make_response, abort
 from flask_restx import fields, reqparse, inputs, Resource
 from service.common import status  # HTTP Status Codes
@@ -191,9 +192,9 @@ class PromotionCollection(Resource):
         app.logger.warning("Create Route Called")
         promo = Promotion()
         json_data = request.get_json()
-        convert_data(json_data)
+        print(convert_data(json_data))
         promo.deserialize(json_data)
-        promo.create()
+        promo.create()           
         data_out = promo.serialize()
         convert_data_back(data_out)
         resource_id = data_out["id"]
@@ -227,7 +228,6 @@ class PromotionCollection(Resource):
             promotions = Promotion.find_by_end_date(end_date)
         else:
             promotions = Promotion.all()
-
         results = [promotion.serialize() for promotion in promotions]
         app.logger.info("Returning %d promotions", len(results))
         return results, status.HTTP_200_OK
@@ -282,6 +282,11 @@ class Cancel(Resource):
             abort(
                 status.HTTP_404_NOT_FOUND,
                 f"Promotion with id {promotion_id} was not found.",
+            )
+        if promo.start_date > date.today():
+            abort(
+                status.HTTP_400_BAD_REQUEST,
+                "Promotion has not started yet, so it cannot be cancelled.",
             )
         promo.cancel()
         promo.update()
