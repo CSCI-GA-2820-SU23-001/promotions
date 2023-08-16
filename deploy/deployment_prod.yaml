@@ -24,7 +24,7 @@ spec:
       restartPolicy: Always
       containers:
       - name: promotions
-        image: us.icr.io/promotions-sum23/promotions:23
+        image: us.icr.io/promotions-sum23/promotions:26
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
