@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: promotions-namespace-prod
+  name: prod
 spec:
   selector:
-    app: promotions-namespace-prod
+    app: prod
   type: NodePort
   internalTrafficPolicy: Local
   ports:

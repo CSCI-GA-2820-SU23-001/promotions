@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: promotions-namespace-prod
+  name: prod
   labels:
-    app: promotions-namespace-prod
+    app: prod
 spec:
   replicas: 2
   strategy:
@@ -13,11 +13,11 @@ spec:
       maxUnavailable: 50%
   selector:
     matchLabels:
-      app: promotions-namespace-prod
+      app: prod
   template:
     metadata:
       labels:
-        app: promotions-namespace-prod
+        app: prod
     spec:
       imagePullSecrets:
       - name: all-icr-io
