@@ -4,7 +4,7 @@ metadata:
   name: dev
 spec:
   selector:
-    app: dev
+    app: promotions
   type: NodePort
   internalTrafficPolicy: Local
   ports:

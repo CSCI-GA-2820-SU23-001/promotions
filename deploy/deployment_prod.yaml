@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: prod
   labels:
-    app: prod
+    app: promotions
 spec:
   replicas: 2
   strategy:
@@ -13,7 +13,7 @@ spec:
       maxUnavailable: 50%
   selector:
     matchLabels:
-      app: prod
+      app: promotions
   template:
     metadata:
       labels:
