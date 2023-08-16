@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: promotions-namespace-prod
+  labels:
+    app: promotions-namespace-prod
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0%
+      maxUnavailable: 50%
+  selector:
+    matchLabels:
+      app: promotions-namespace-prod
+  template:
+    metadata:
+      labels:
+        app: promotions-namespace-prod
+    spec:
+      imagePullSecrets:
+      - name: all-icr-io
+      restartPolicy: Always
+      containers:
+      - name: promotions
+        image: us.icr.io/promotions-sum23/promotions:23
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+          - name: DATABASE_URI
+            valueFrom:
+              secretKeyRef:
+                name: postgres-creds
+                key: database_uri
+        readinessProbe:
+          initialDelaySeconds: 5
+          periodSeconds: 30
+          httpGet:
+            path: /health
+            port: 8080
+        resources:
+          limits:
+            cpu: "0.50"
+            memory: "128Mi"
+          requests:
+            cpu: "0.25"        
+            memory: "64Mi"
