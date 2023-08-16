@@ -44,7 +44,7 @@ spec:
 
 ---
 apiVersion: v1
-kind: ClusterIP
+kind: Service
 metadata:
   name: postgres
   labels:

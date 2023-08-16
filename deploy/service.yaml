@@ -5,6 +5,7 @@ metadata:
 spec:
   selector:
     app: promotions
+
   type: NodePort
   internalTrafficPolicy: Local
   ports:
