@@ -30,8 +30,9 @@ def step_impl(context):
     """ Delete all Promotions and load new ones """
 
     # List all of the promotions and delete them one by one
-    #rest_endpoint = f"{context.base_url}/api/promotions"
-    rest_endpoint = "http://localhost:8080/api/promotions"
+    rest_endpoint = f"{context.base_url}/api/promotions"
+    print(f'step_impl {rest_endpoint}')
+    #rest_endpoint = "http://localhost:8080/api/promotions"
     context.resp = requests.get(rest_endpoint)
     assert(context.resp.status_code == HTTP_200_OK)
     for promo in context.resp.json():
@@ -61,13 +62,15 @@ def step_impl(context):
     'BASE_URL',
     'http://localhost:8080'
     )
-  context.base_url = 'http://localhost:8080'
+  #context.base_url = 'http://localhost:8080'
+  print(f'Server started: {context.base_url}')
   context.resp = requests.get(context.base_url + '/')
   assert context.resp.status_code == 200
 
 @when(u'I visit the "home page"')
 def step_impl(context):
- context.base_url = 'http://localhost:8080'
+ #context.base_url = 'http://localhost:8080'
+ print(f'visit home page: {context.base_url}')
  context.driver.get(context.base_url)
  context.resp = requests.get(context.base_url + '/')
  assert context.resp.status_code == 200
