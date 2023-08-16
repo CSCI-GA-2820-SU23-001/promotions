@@ -108,7 +108,7 @@ $(function () {
         });
 
         ajax.fail(function(res){
-            flash_message(res.responseJSON.message)
+            flash_message(`${res.responseJSON.error} ${res.responseJSON.message}`)
         });
     });
 	
@@ -299,7 +299,7 @@ $(function () {
         ajax.done(function(res){
             console.log("cancel", res);
 
-            flash_message(`Promotion canceled!`)
+            flash_message(`Promotion cancelled!`)
         });
 
         ajax.fail(function(res){
