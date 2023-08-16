@@ -92,7 +92,26 @@ change_end_date_model = api.model(
     "Promotion",
     {
         "id": fields.String(required=True, description="ID of the Promotion"),
+        "name": fields.String(required=False, description="The name of Promotion"),
+        "start_date": fields.Date(required=False, description="The start date of Promotion"),
         "end_date": fields.Date(required=True, description="The end date of Promotion"),
+        "whole_store": fields.Boolean(
+            required=False,
+            description="Whether the promotion can be apply in whole store",
+        ),
+        "has_been_extended": fields.Boolean(
+            required=False, description="Whether the promotion has been extended"
+        ),
+        "original_end_date": fields.Date(
+            required=False, description="The original end date of promotion"
+        ),
+        "message": fields.String(
+            required=False, description="Additional message about this promotion"
+        ),
+        "promotion_changes_price": fields.Boolean(
+            required=False,
+            description="Whether this promotion will change the price of things in the store",
+        ),
     },
 )
 
